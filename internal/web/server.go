@@ -9,12 +9,14 @@ import (
 	"tgavatar/internal/auth"
 )
 
+// Handler struct for web routes handlers
 type Handler struct {
 	codeChan    chan string
 	authChecker auth.Checker
 	auth        auth.Auth
 }
 
+// LaunchAuthServer start web server for telegram auth
 func LaunchAuthServer(authChecker auth.Checker, auth auth.Auth) error {
 	app := fiber.New()
 
@@ -31,16 +33,17 @@ func LaunchAuthServer(authChecker auth.Checker, auth auth.Auth) error {
 
 	err := app.Listen(os.Getenv("HOST"))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to get web server host")
 	}
 
 	return nil
 }
 
+// Auth handler for GET / route
 func (h Handler) Auth(c *fiber.Ctx) error {
 	authorized, err := h.authChecker.CheckAuth(c.Context())
 	if err != nil {
-		log.Println(errors.Wrap(err, "auth check failed"))
+		log.Println(errors.Wrap(err, "auth check failed for /auth"))
 		return fiber.ErrInternalServerError
 	}
 
@@ -51,10 +54,11 @@ func (h Handler) Auth(c *fiber.Ctx) error {
 	return c.SendFile("html/auth.html")
 }
 
+// Phone handler for POST /phone route
 func (h Handler) Phone(c *fiber.Ctx) error {
 	authorized, err := h.authChecker.CheckAuth(c.Context())
 	if err != nil {
-		log.Println(errors.Wrap(err, "auth check failed"))
+		log.Println(errors.Wrap(err, "auth check failed for /phone"))
 		return fiber.ErrInternalServerError
 	}
 
@@ -67,22 +71,24 @@ func (h Handler) Phone(c *fiber.Ctx) error {
 	}{}
 
 	if err := c.BodyParser(&req); err != nil {
+		log.Println(errors.Wrap(err, "failed to decode body for /phone"))
 		return fiber.ErrBadRequest
 	}
 
 	err = h.auth.Auth(req.Phone, h.codeChan)
 	if err != nil {
-		log.Println(errors.Wrap(err, "auth error"))
+		log.Println(errors.Wrap(err, "auth error for /phone"))
 		return fiber.ErrInternalServerError
 	}
 
 	return c.SendFile("html/code.html")
 }
 
+// Code handler for POST /code route
 func (h Handler) Code(c *fiber.Ctx) error {
 	authorized, err := h.authChecker.CheckAuth(c.Context())
 	if err != nil {
-		log.Println(errors.Wrap(err, "auth check failed"))
+		log.Println(errors.Wrap(err, "auth check failed for /code"))
 		return fiber.ErrInternalServerError
 	}
 
@@ -95,6 +101,7 @@ func (h Handler) Code(c *fiber.Ctx) error {
 	}{}
 
 	if err := c.BodyParser(&req); err != nil {
+		log.Println(errors.Wrap(err, "failed to decode body for /code"))
 		return fiber.ErrBadRequest
 	}
 

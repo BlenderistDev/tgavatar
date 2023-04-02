@@ -2,18 +2,21 @@ package upload
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/uploader"
 	"github.com/gotd/td/tg"
+	"github.com/pkg/errors"
 )
 
+// Upload struct for telegram avatar updating
 type Upload struct {
 	client  *telegram.Client
 	imgChan chan []byte
 }
 
+// NewUpload constructor for Upload struct
 func NewUpload(client *telegram.Client, imgChan chan []byte) Upload {
 	return Upload{
 		client:  client,
@@ -21,13 +24,15 @@ func NewUpload(client *telegram.Client, imgChan chan []byte) Upload {
 	}
 }
 
+// Start run uploading goroutine
 func (u Upload) Start(ctx context.Context) {
 	for {
 		img := <-u.imgChan
 		err := u.upload(ctx, img)
 		if err != nil {
-			panic(err)
+			log.Println(errors.Wrap(err, "avatar update error"))
 		}
+		log.Println("avatar successfully updated")
 	}
 }
 
@@ -36,21 +41,19 @@ func (u Upload) upload(ctx context.Context, img []byte) error {
 
 	file, err := loader.FromBytes(ctx, "avatar.png", img)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error while upload file from bytes")
 	}
 
 	res, err := u.client.API().PhotosUploadProfilePhoto(ctx, &tg.PhotosUploadProfilePhotoRequest{
 		File: file,
 	})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error while upload avatar request")
 	}
-
-	fmt.Println(res.String())
 
 	err = u.deleteOld(ctx, res.GetPhoto().GetID())
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error while deleting old avatars")
 	}
 
 	return nil
@@ -65,7 +68,7 @@ func (u Upload) deleteOld(ctx context.Context, maxID int64) error {
 	})
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error while get old avatar request")
 	}
 
 	var photosToDelete []tg.InputPhotoClass
@@ -77,7 +80,7 @@ func (u Upload) deleteOld(ctx context.Context, maxID int64) error {
 
 	_, err = u.client.API().PhotosDeletePhotos(ctx, photosToDelete)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error in delete old avatars request")
 	}
 
 	return nil

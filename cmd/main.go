@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
@@ -36,9 +36,9 @@ func main() {
 	}
 
 	if !authorized {
-		fmt.Println("wait auth")
+		log.Println("wait auth")
 		<-successAuthChan
-		fmt.Println("auth successfully")
+		log.Println("auth successfully")
 	}
 
 	imgChan := make(chan []byte)

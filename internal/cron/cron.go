@@ -10,6 +10,7 @@ import (
 	"tgavatar/internal/avatar"
 )
 
+// StartCronAvatarChange starts cronjob for changing avatar
 func StartCronAvatarChange(generator avatar.Generator, imgChan chan []byte) error {
 	c := cron.New()
 	loc, err := time.LoadLocation(os.Getenv("TIMEZONE"))

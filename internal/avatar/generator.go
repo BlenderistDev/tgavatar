@@ -9,14 +9,21 @@ import (
 	"image/png"
 	"log"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
+// Generator struct for avatar generator
 type Generator struct {
 }
 
+// Generate avatar generation for input hour
 func (g Generator) Generate(hour int) ([]byte, error) {
 	log.Println(fmt.Sprintf("start avatar generation with %d hour", hour))
 	img, err := g.getTemplate(hour)
+	if err != nil {
+		return nil, errors.Wrap(err, "get template error")
+	}
 
 	// Получаем размеры изображения
 	bounds := img.Bounds()
@@ -73,7 +80,7 @@ func (g Generator) Generate(hour int) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	err = jpeg.Encode(buf, newImg, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "decode generated image error")
 	}
 
 	return buf.Bytes(), nil
@@ -97,14 +104,14 @@ func (g Generator) getTemplate(hour int) (image.Image, error) {
 	// open image
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "open template image error")
 	}
 	defer file.Close()
 
 	// decode image
 	img, err := png.Decode(file)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "decode template image error")
 	}
 
 	return img, nil
