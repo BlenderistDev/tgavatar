@@ -12,7 +12,7 @@ type Checker struct {
 
 func (c Checker) CheckAuth(ctx context.Context) (bool, error) {
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: "session"},
+		SessionStorage: &session.FileStorage{Path: "storage/session"},
 	})
 
 	if err != nil {

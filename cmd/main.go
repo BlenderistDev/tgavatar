@@ -42,7 +42,7 @@ func main() {
 	imgChan := make(chan []byte)
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: "session"},
+		SessionStorage: &session.FileStorage{Path: "storage/session"},
 	})
 	if err != nil {
 		panic(errors.Wrap(err, "failed to create avatar update client"))

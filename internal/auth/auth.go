@@ -71,7 +71,7 @@ func (a Auth) Auth(phone string, codeChan chan string) error {
 	)
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: "session"},
+		SessionStorage: &session.FileStorage{Path: "storage/session"},
 	})
 
 	if err != nil {
