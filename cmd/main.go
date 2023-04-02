@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
@@ -32,8 +33,10 @@ func main() {
 		panic(errors.Wrap(err, "failed check auth in main"))
 	}
 
-	// wait auth
-	for !authorized {
+	if !authorized {
+		fmt.Println("wait auth")
+		<-authChan
+		fmt.Println("auth successfully")
 	}
 
 	imgChan := make(chan []byte)
