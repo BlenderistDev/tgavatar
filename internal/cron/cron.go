@@ -13,7 +13,7 @@ import (
 func StartCronAvatarChange(generator avatar.Generator, imgChan chan []byte) error {
 	c := cron.New()
 	fmt.Println("startCron")
-	_, err := c.AddFunc("* * * * *", func() {
+	_, err := c.AddFunc("0 * * * *", func() {
 		fmt.Println("cron")
 
 		img, err := generator.Generate(time.Now().Hour())
