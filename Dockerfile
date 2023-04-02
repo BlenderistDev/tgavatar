@@ -9,6 +9,8 @@ RUN go mod download
 RUN mkdir -p ./bin
 RUN go build -o /bin/tgavatar /app/cmd/
 
+ENV TZ=Europe/Moscow
+
 EXPOSE 8081
 
 CMD [ "/bin/tgavatar" ]
