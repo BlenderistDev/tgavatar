@@ -1,7 +1,6 @@
 package cron
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -12,10 +11,8 @@ import (
 
 func StartCronAvatarChange(generator avatar.Generator, imgChan chan []byte) error {
 	c := cron.New()
-	fmt.Println("startCron")
+	log.Println("start cron job")
 	_, err := c.AddFunc("0 * * * *", func() {
-		fmt.Println("cron")
-
 		img, err := generator.Generate(time.Now().Hour())
 		if err != nil {
 			log.Println(errors.Wrap(err, "avatar generation failed"))

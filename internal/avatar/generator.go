@@ -2,10 +2,12 @@ package avatar
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
 	"image/png"
+	"log"
 	"os"
 )
 
@@ -13,6 +15,7 @@ type Generator struct {
 }
 
 func (g Generator) Generate(hour int) ([]byte, error) {
+	log.Println(fmt.Sprintf("start avatar generation with %d hour", hour))
 	img, err := g.getTemplate(hour)
 
 	// Получаем размеры изображения
