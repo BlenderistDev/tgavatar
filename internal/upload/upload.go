@@ -21,25 +21,25 @@ func NewUpload(client *telegram.Client, imgChan chan []byte) Upload {
 	}
 }
 
-func (u Upload) Start() {
+func (u Upload) Start(ctx context.Context) {
 	for {
 		img := <-u.imgChan
-		err := u.upload(img)
+		err := u.upload(ctx, img)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
-func (u Upload) upload(img []byte) error {
+func (u Upload) upload(ctx context.Context, img []byte) error {
 	loader := uploader.NewUploader(u.client.API())
 
-	file, err := loader.FromBytes(context.Background(), "avatar.png", img)
+	file, err := loader.FromBytes(ctx, "avatar.png", img)
 	if err != nil {
 		return err
 	}
 
-	res, err := u.client.API().PhotosUploadProfilePhoto(context.Background(), &tg.PhotosUploadProfilePhotoRequest{
+	res, err := u.client.API().PhotosUploadProfilePhoto(ctx, &tg.PhotosUploadProfilePhotoRequest{
 		File: file,
 	})
 	if err != nil {
@@ -48,7 +48,7 @@ func (u Upload) upload(img []byte) error {
 
 	fmt.Println(res.String())
 
-	err = u.deleteOld(context.Background(), res.GetPhoto().GetID())
+	err = u.deleteOld(ctx, res.GetPhoto().GetID())
 	if err != nil {
 		return err
 	}

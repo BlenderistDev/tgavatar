@@ -16,10 +16,12 @@ import (
 )
 
 func main() {
-	authChecker := auth.Checker{}
-	authChan := make(chan struct{})
+	ctx := context.Background()
 
-	authService := auth.NewAuth(authChan)
+	authChecker := auth.Checker{}
+	successAuthChan := make(chan struct{})
+
+	authService := auth.NewAuth(ctx, successAuthChan)
 
 	go func() {
 		err := web.LaunchAuthServer(authChecker, authService)
@@ -28,14 +30,14 @@ func main() {
 		}
 	}()
 
-	authorized, err := authChecker.CheckAuth(context.Background())
+	authorized, err := authChecker.CheckAuth(ctx)
 	if err != nil {
 		panic(errors.Wrap(err, "failed check auth in main"))
 	}
 
 	if !authorized {
 		fmt.Println("wait auth")
-		<-authChan
+		<-successAuthChan
 		fmt.Println("auth successfully")
 	}
 
@@ -49,9 +51,9 @@ func main() {
 	}
 
 	go func() {
-		if err := client.Run(context.Background(), func(ctx context.Context) error {
+		if err := client.Run(ctx, func(ctx context.Context) error {
 			u := upload.NewUpload(client, imgChan)
-			u.Start()
+			u.Start(ctx)
 
 			select {}
 		}); err != nil {

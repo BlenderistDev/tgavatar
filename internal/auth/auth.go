@@ -17,11 +17,11 @@ import (
 // noSignUp can be embedded to prevent signing up.
 type noSignUp struct{}
 
-func (c noSignUp) SignUp(ctx context.Context) (auth.UserInfo, error) {
+func (c noSignUp) SignUp(_ context.Context) (auth.UserInfo, error) {
 	return auth.UserInfo{}, errors.New("not implemented")
 }
 
-func (c noSignUp) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfService) error {
+func (c noSignUp) AcceptTermsOfService(_ context.Context, tos tg.HelpTermsOfService) error {
 	return &auth.SignUpRequired{TermsOfService: tos}
 }
 
@@ -47,7 +47,7 @@ func (a termAuth) Password(_ context.Context) (string, error) {
 	return strings.TrimSpace(string(bytePwd)), nil
 }
 
-func (a termAuth) Code(_ context.Context, s *tg.AuthSentCode) (string, error) {
+func (a termAuth) Code(_ context.Context, _ *tg.AuthSentCode) (string, error) {
 
 	code := <-a.dataChan
 
@@ -56,11 +56,13 @@ func (a termAuth) Code(_ context.Context, s *tg.AuthSentCode) (string, error) {
 
 type Auth struct {
 	successAuthChan chan struct{}
+	ctx             context.Context
 }
 
-func NewAuth(successAuthChan chan struct{}) Auth {
+func NewAuth(ctx context.Context, successAuthChan chan struct{}) Auth {
 	return Auth{
 		successAuthChan: successAuthChan,
+		ctx:             ctx,
 	}
 }
 
@@ -79,7 +81,7 @@ func (a Auth) Auth(phone string, codeChan chan string) error {
 	}
 
 	go func() {
-		err = client.Run(context.Background(), func(ctx context.Context) error {
+		err = client.Run(a.ctx, func(ctx context.Context) error {
 			if err := client.Auth().IfNecessary(ctx, flow); err != nil {
 				return err
 			}
