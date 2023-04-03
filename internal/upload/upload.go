@@ -4,23 +4,35 @@ import (
 	"context"
 	"log"
 
-	"github.com/gotd/td/telegram"
-	"github.com/gotd/td/telegram/uploader"
 	"github.com/gotd/td/tg"
 	"github.com/pkg/errors"
 )
 
+//go:generate mockgen -source=upload.go -destination=./mock/upload.go -package=mock_upload
+
+type tgClient interface {
+	PhotosUploadProfilePhoto(ctx context.Context, request *tg.PhotosUploadProfilePhotoRequest) (*tg.PhotosPhoto, error)
+	PhotosGetUserPhotos(ctx context.Context, request *tg.PhotosGetUserPhotosRequest) (tg.PhotosPhotosClass, error)
+	PhotosDeletePhotos(ctx context.Context, id []tg.InputPhotoClass) ([]int64, error)
+}
+
+type loader interface {
+	FromBytes(ctx context.Context, name string, b []byte) (tg.InputFileClass, error)
+}
+
 // Upload struct for telegram avatar updating
 type Upload struct {
-	client  *telegram.Client
-	imgChan chan []byte
+	client   tgClient
+	imgChan  chan []byte
+	uploader loader
 }
 
 // NewUpload constructor for Upload struct
-func NewUpload(client *telegram.Client, imgChan chan []byte) Upload {
+func NewUpload(client tgClient, uploader loader, imgChan chan []byte) Upload {
 	return Upload{
-		client:  client,
-		imgChan: imgChan,
+		client:   client,
+		imgChan:  imgChan,
+		uploader: uploader,
 	}
 }
 
@@ -37,14 +49,12 @@ func (u Upload) Start(ctx context.Context) {
 }
 
 func (u Upload) upload(ctx context.Context, img []byte) error {
-	loader := uploader.NewUploader(u.client.API())
-
-	file, err := loader.FromBytes(ctx, "avatar.png", img)
+	file, err := u.uploader.FromBytes(ctx, "avatar.png", img)
 	if err != nil {
 		return errors.Wrap(err, "error while upload file from bytes")
 	}
 
-	res, err := u.client.API().PhotosUploadProfilePhoto(ctx, &tg.PhotosUploadProfilePhotoRequest{
+	res, err := u.client.PhotosUploadProfilePhoto(ctx, &tg.PhotosUploadProfilePhotoRequest{
 		File: file,
 	})
 	if err != nil {
@@ -60,11 +70,9 @@ func (u Upload) upload(ctx context.Context, img []byte) error {
 }
 
 func (u Upload) deleteOld(ctx context.Context, maxID int64) error {
-	photos, err := u.client.API().PhotosGetUserPhotos(ctx, &tg.PhotosGetUserPhotosRequest{
+	photos, err := u.client.PhotosGetUserPhotos(ctx, &tg.PhotosGetUserPhotosRequest{
 		UserID: &tg.InputUserSelf{},
-		Offset: 0,
 		MaxID:  maxID,
-		Limit:  0,
 	})
 
 	if err != nil {
@@ -78,7 +86,7 @@ func (u Upload) deleteOld(ctx context.Context, maxID int64) error {
 		})
 	}
 
-	_, err = u.client.API().PhotosDeletePhotos(ctx, photosToDelete)
+	_, err = u.client.PhotosDeletePhotos(ctx, photosToDelete)
 	if err != nil {
 		return errors.Wrap(err, "error in delete old avatars request")
 	}

@@ -17,6 +17,7 @@ require (
 	github.com/go-faster/errors v0.6.1 // indirect
 	github.com/go-faster/jx v1.0.0 // indirect
 	github.com/go-faster/xor v0.3.0 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gotd/ige v0.2.2 // indirect

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/telegram/uploader"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pkg/errors"
 	"tgavatar/internal/auth"
@@ -52,7 +53,8 @@ func main() {
 
 	go func() {
 		if err := client.Run(ctx, func(ctx context.Context) error {
-			u := upload.NewUpload(client, imgChan)
+			loader := uploader.NewUploader(client.API())
+			u := upload.NewUpload(client.API(), loader, imgChan)
 			u.Start(ctx)
 
 			select {}
