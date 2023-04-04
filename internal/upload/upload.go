@@ -2,13 +2,17 @@ package upload
 
 import (
 	"context"
-	"log"
 
 	"github.com/gotd/td/tg"
 	"github.com/pkg/errors"
 )
 
 //go:generate mockgen -source=upload.go -destination=./mock/upload.go -package=mock_upload
+
+type log interface {
+	Error(args ...interface{})
+	Info(args ...interface{})
+}
 
 type tgClient interface {
 	PhotosUploadProfilePhoto(ctx context.Context, request *tg.PhotosUploadProfilePhotoRequest) (*tg.PhotosPhoto, error)
@@ -25,14 +29,16 @@ type Upload struct {
 	client   tgClient
 	imgChan  chan []byte
 	uploader loader
+	log      log
 }
 
 // NewUpload constructor for Upload struct
-func NewUpload(client tgClient, uploader loader, imgChan chan []byte) Upload {
+func NewUpload(client tgClient, uploader loader, log log, imgChan chan []byte) Upload {
 	return Upload{
 		client:   client,
 		imgChan:  imgChan,
 		uploader: uploader,
+		log:      log,
 	}
 }
 
@@ -42,9 +48,9 @@ func (u Upload) Start(ctx context.Context) {
 		img := <-u.imgChan
 		err := u.upload(ctx, img)
 		if err != nil {
-			log.Println(errors.Wrap(err, "avatar update error"))
+			u.log.Error(errors.Wrap(err, "avatar update error"))
 		}
-		log.Println("avatar successfully updated")
+		u.log.Info("avatar successfully updated")
 	}
 }
 

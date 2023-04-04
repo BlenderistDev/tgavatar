@@ -7,19 +7,30 @@ import (
 	"image/color"
 	"image/jpeg"
 	"image/png"
-	"log"
 	"os"
 
 	"github.com/pkg/errors"
 )
 
+type log interface {
+	Error(args ...interface{})
+	Info(args ...interface{})
+}
+
 // Generator struct for avatar generator
 type Generator struct {
+	log log
+}
+
+func NewGenerator(log log) Generator {
+	return Generator{
+		log: log,
+	}
 }
 
 // Generate avatar generation for input hour
 func (g Generator) Generate(hour int) ([]byte, error) {
-	log.Println(fmt.Sprintf("start avatar generation with %d hour", hour))
+	g.log.Info(fmt.Sprintf("start avatar generation with %d hour", hour))
 	img, err := g.getTemplate(hour)
 	if err != nil {
 		return nil, errors.Wrap(err, "get template error")
@@ -106,7 +117,12 @@ func (g Generator) getTemplate(hour int) (image.Image, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "open template image error")
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			g.log.Error(errors.Wrap(err, "template file close error"))
+		}
+	}(file)
 
 	// decode image
 	img, err := png.Decode(file)

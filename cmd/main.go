@@ -2,16 +2,17 @@ package main
 
 import (
 	"context"
-	"log"
 
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/uploader"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"tgavatar/internal/auth"
 	"tgavatar/internal/avatar"
 	"tgavatar/internal/cron"
+	"tgavatar/internal/log"
 	"tgavatar/internal/upload"
 	"tgavatar/internal/web"
 )
@@ -19,13 +20,15 @@ import (
 func main() {
 	ctx := context.Background()
 
+	logger := log.NewLogger(logrus.New())
+
 	authChecker := auth.Checker{}
 	successAuthChan := make(chan struct{})
 
-	authService := auth.NewAuth(ctx, successAuthChan)
+	authService := auth.NewAuth(ctx, logger, successAuthChan)
 
 	go func() {
-		err := web.LaunchAuthServer(authChecker, authService)
+		err := web.LaunchAuthServer(authChecker, authService, logger)
 		if err != nil {
 			panic(errors.Wrap(err, "failed launch auth server"))
 		}
@@ -37,9 +40,9 @@ func main() {
 	}
 
 	if !authorized {
-		log.Println("wait auth")
+		logger.Info("wait auth")
 		<-successAuthChan
-		log.Println("auth successfully")
+		logger.Info("auth successfully")
 	}
 
 	imgChan := make(chan []byte)
@@ -54,7 +57,7 @@ func main() {
 	go func() {
 		if err := client.Run(ctx, func(ctx context.Context) error {
 			loader := uploader.NewUploader(client.API())
-			u := upload.NewUpload(client.API(), loader, imgChan)
+			u := upload.NewUpload(client.API(), loader, logger, imgChan)
 			u.Start(ctx)
 
 			select {}
@@ -63,7 +66,8 @@ func main() {
 		}
 	}()
 
-	err = cron.StartCronAvatarChange(avatar.Generator{}, imgChan)
+	generator := avatar.NewGenerator(logger)
+	err = cron.StartCronAvatarChange(generator, logger, imgChan)
 	if err != nil {
 		panic(err)
 	}

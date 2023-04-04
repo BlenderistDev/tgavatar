@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/gotd/td/session"
@@ -13,6 +12,11 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+type log interface {
+	Error(args ...interface{})
+	Info(args ...interface{})
+}
 
 // noSignUp can be embedded to prevent signing up.
 type noSignUp struct{}
@@ -64,13 +68,15 @@ func (a termAuth) Code(_ context.Context, _ *tg.AuthSentCode) (string, error) {
 type Auth struct {
 	successAuthChan chan struct{}
 	ctx             context.Context
+	log             log
 }
 
 // NewAuth constructor for Auth
-func NewAuth(ctx context.Context, successAuthChan chan struct{}) Auth {
+func NewAuth(ctx context.Context, log log, successAuthChan chan struct{}) Auth {
 	return Auth{
 		successAuthChan: successAuthChan,
 		ctx:             ctx,
+		log:             log,
 	}
 }
 
@@ -100,7 +106,7 @@ func (a Auth) Auth(phone string, codeChan chan string) error {
 		})
 		if err != nil {
 			// @todo add error handling
-			log.Println(errors.Wrap(err, "auth error"))
+			a.log.Error(errors.Wrap(err, "auth error"))
 		}
 	}()
 

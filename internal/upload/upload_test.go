@@ -52,7 +52,10 @@ func TestUpload_Start(t *testing.T) {
 	tgClient.EXPECT().PhotosGetUserPhotos(ctx, photosGetUserPhotosRequest).Return(profilePhotos, nil)
 	tgClient.EXPECT().PhotosDeletePhotos(ctx, photosToDelete).Return(nil, nil)
 
-	upload := NewUpload(tgClient, loader, imgChan)
+	log := mock_upload.NewMocklog(ctrl)
+	log.EXPECT().Info("avatar successfully updated")
+
+	upload := NewUpload(tgClient, loader, log, imgChan)
 	go upload.Start(ctx)
 	imgChan <- bytes
 	time.Sleep(time.Millisecond * 100)

@@ -12,6 +12,61 @@ import (
 	tg "github.com/gotd/td/tg"
 )
 
+// Mocklog is a mock of log interface.
+type Mocklog struct {
+	ctrl     *gomock.Controller
+	recorder *MocklogMockRecorder
+}
+
+// MocklogMockRecorder is the mock recorder for Mocklog.
+type MocklogMockRecorder struct {
+	mock *Mocklog
+}
+
+// NewMocklog creates a new mock instance.
+func NewMocklog(ctrl *gomock.Controller) *Mocklog {
+	mock := &Mocklog{ctrl: ctrl}
+	mock.recorder = &MocklogMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *Mocklog) EXPECT() *MocklogMockRecorder {
+	return m.recorder
+}
+
+// Error mocks base method.
+func (m *Mocklog) Error(args ...interface{}) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Error", varargs...)
+}
+
+// Error indicates an expected call of Error.
+func (mr *MocklogMockRecorder) Error(args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Error", reflect.TypeOf((*Mocklog)(nil).Error), args...)
+}
+
+// Info mocks base method.
+func (m *Mocklog) Info(args ...interface{}) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Info", varargs...)
+}
+
+// Info indicates an expected call of Info.
+func (mr *MocklogMockRecorder) Info(args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*Mocklog)(nil).Info), args...)
+}
+
 // MocktgClient is a mock of tgClient interface.
 type MocktgClient struct {
 	ctrl     *gomock.Controller

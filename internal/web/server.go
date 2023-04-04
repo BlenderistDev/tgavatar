@@ -1,7 +1,6 @@
 package web
 
 import (
-	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,15 +8,21 @@ import (
 	"tgavatar/internal/auth"
 )
 
+type log interface {
+	Error(args ...interface{})
+	Info(args ...interface{})
+}
+
 // Handler struct for web routes handlers
 type Handler struct {
 	codeChan    chan string
 	authChecker auth.Checker
 	auth        auth.Auth
+	log         log
 }
 
 // LaunchAuthServer start web server for telegram auth
-func LaunchAuthServer(authChecker auth.Checker, auth auth.Auth) error {
+func LaunchAuthServer(authChecker auth.Checker, auth auth.Auth, log log) error {
 	app := fiber.New()
 
 	codeChan := make(chan string)
@@ -25,6 +30,7 @@ func LaunchAuthServer(authChecker auth.Checker, auth auth.Auth) error {
 		codeChan:    codeChan,
 		authChecker: authChecker,
 		auth:        auth,
+		log:         log,
 	}
 
 	app.Get("/", h.Auth)
@@ -43,7 +49,7 @@ func LaunchAuthServer(authChecker auth.Checker, auth auth.Auth) error {
 func (h Handler) Auth(c *fiber.Ctx) error {
 	authorized, err := h.authChecker.CheckAuth(c.Context())
 	if err != nil {
-		log.Println(errors.Wrap(err, "auth check failed for /auth"))
+		h.log.Error(errors.Wrap(err, "auth check failed for /auth"))
 		return fiber.ErrInternalServerError
 	}
 
@@ -58,7 +64,7 @@ func (h Handler) Auth(c *fiber.Ctx) error {
 func (h Handler) Phone(c *fiber.Ctx) error {
 	authorized, err := h.authChecker.CheckAuth(c.Context())
 	if err != nil {
-		log.Println(errors.Wrap(err, "auth check failed for /phone"))
+		h.log.Error(errors.Wrap(err, "auth check failed for /phone"))
 		return fiber.ErrInternalServerError
 	}
 
@@ -71,13 +77,13 @@ func (h Handler) Phone(c *fiber.Ctx) error {
 	}{}
 
 	if err := c.BodyParser(&req); err != nil {
-		log.Println(errors.Wrap(err, "failed to decode body for /phone"))
+		h.log.Error(errors.Wrap(err, "failed to decode body for /phone"))
 		return fiber.ErrBadRequest
 	}
 
 	err = h.auth.Auth(req.Phone, h.codeChan)
 	if err != nil {
-		log.Println(errors.Wrap(err, "auth error for /phone"))
+		h.log.Error(errors.Wrap(err, "auth error for /phone"))
 		return fiber.ErrInternalServerError
 	}
 
@@ -88,7 +94,7 @@ func (h Handler) Phone(c *fiber.Ctx) error {
 func (h Handler) Code(c *fiber.Ctx) error {
 	authorized, err := h.authChecker.CheckAuth(c.Context())
 	if err != nil {
-		log.Println(errors.Wrap(err, "auth check failed for /code"))
+		h.log.Error(errors.Wrap(err, "auth check failed for /code"))
 		return fiber.ErrInternalServerError
 	}
 
@@ -101,7 +107,7 @@ func (h Handler) Code(c *fiber.Ctx) error {
 	}{}
 
 	if err := c.BodyParser(&req); err != nil {
-		log.Println(errors.Wrap(err, "failed to decode body for /code"))
+		h.log.Error(errors.Wrap(err, "failed to decode body for /code"))
 		return fiber.ErrBadRequest
 	}
 
