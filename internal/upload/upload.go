@@ -24,17 +24,22 @@ type loader interface {
 	FromBytes(ctx context.Context, name string, b []byte) (tg.InputFileClass, error)
 }
 
-// Upload struct for telegram avatar updating
-type Upload struct {
+// Upload telegram avatar updating
+type Upload interface {
+	Start(ctx context.Context)
+}
+
+// upload struct for telegram avatar updating
+type upload struct {
 	client   tgClient
 	imgChan  chan []byte
 	uploader loader
 	log      log
 }
 
-// NewUpload constructor for Upload struct
+// NewUpload constructor for upload struct
 func NewUpload(client tgClient, uploader loader, log log, imgChan chan []byte) Upload {
-	return Upload{
+	return upload{
 		client:   client,
 		imgChan:  imgChan,
 		uploader: uploader,
@@ -43,18 +48,19 @@ func NewUpload(client tgClient, uploader loader, log log, imgChan chan []byte) U
 }
 
 // Start run uploading goroutine
-func (u Upload) Start(ctx context.Context) {
+func (u upload) Start(ctx context.Context) {
 	for {
 		img := <-u.imgChan
 		err := u.upload(ctx, img)
 		if err != nil {
 			u.log.Error(errors.Wrap(err, "avatar update error"))
+			continue
 		}
 		u.log.Info("avatar successfully updated")
 	}
 }
 
-func (u Upload) upload(ctx context.Context, img []byte) error {
+func (u upload) upload(ctx context.Context, img []byte) error {
 	file, err := u.uploader.FromBytes(ctx, "avatar.png", img)
 	if err != nil {
 		return errors.Wrap(err, "error while upload file from bytes")
@@ -75,7 +81,7 @@ func (u Upload) upload(ctx context.Context, img []byte) error {
 	return nil
 }
 
-func (u Upload) deleteOld(ctx context.Context, maxID int64) error {
+func (u upload) deleteOld(ctx context.Context, maxID int64) error {
 	photos, err := u.client.PhotosGetUserPhotos(ctx, &tg.PhotosGetUserPhotosRequest{
 		UserID: &tg.InputUserSelf{},
 		MaxID:  maxID,

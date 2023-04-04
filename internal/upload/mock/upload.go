@@ -172,3 +172,38 @@ func (mr *MockloaderMockRecorder) FromBytes(ctx, name, b interface{}) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FromBytes", reflect.TypeOf((*Mockloader)(nil).FromBytes), ctx, name, b)
 }
+
+// MockUpload is a mock of Upload interface.
+type MockUpload struct {
+	ctrl     *gomock.Controller
+	recorder *MockUploadMockRecorder
+}
+
+// MockUploadMockRecorder is the mock recorder for MockUpload.
+type MockUploadMockRecorder struct {
+	mock *MockUpload
+}
+
+// NewMockUpload creates a new mock instance.
+func NewMockUpload(ctrl *gomock.Controller) *MockUpload {
+	mock := &MockUpload{ctrl: ctrl}
+	mock.recorder = &MockUploadMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockUpload) EXPECT() *MockUploadMockRecorder {
+	return m.recorder
+}
+
+// Start mocks base method.
+func (m *MockUpload) Start(ctx context.Context) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Start", ctx)
+}
+
+// Start indicates an expected call of Start.
+func (mr *MockUploadMockRecorder) Start(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockUpload)(nil).Start), ctx)
+}
