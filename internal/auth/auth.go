@@ -69,14 +69,16 @@ type Auth struct {
 	successAuthChan chan struct{}
 	ctx             context.Context
 	log             log
+	storagePath     string
 }
 
 // NewAuth constructor for Auth
-func NewAuth(ctx context.Context, log log, successAuthChan chan struct{}) Auth {
+func NewAuth(ctx context.Context, log log, storagePath string, successAuthChan chan struct{}) Auth {
 	return Auth{
 		successAuthChan: successAuthChan,
 		ctx:             ctx,
 		log:             log,
+		storagePath:     storagePath,
 	}
 }
 
@@ -88,7 +90,7 @@ func (a Auth) Auth(phone string, codeChan chan string) error {
 	)
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: "storage/session"},
+		SessionStorage: &session.FileStorage{Path: a.storagePath},
 	})
 
 	if err != nil {

@@ -8,21 +8,34 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Checker struct for authorization checking
-type Checker struct {
+var noAuthorizedErr = errors.New("user is not authorized")
+
+// Checker authorization checker
+type Checker interface {
+	CheckAuth(ctx context.Context) (bool, error)
+}
+
+// checker struct for authorization checking
+type checker struct {
+	storagePath string
+}
+
+// NewChecker Checker authorization checker constructor
+func NewChecker(storagePath string) Checker {
+	return checker{
+		storagePath: storagePath,
+	}
 }
 
 // CheckAuth checks telegram authorization for current session
-func (c Checker) CheckAuth(ctx context.Context) (bool, error) {
+func (c checker) CheckAuth(ctx context.Context) (bool, error) {
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: "storage/session"},
+		SessionStorage: &session.FileStorage{Path: c.storagePath},
 	})
 
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create client for check auth")
 	}
-
-	var authorized bool
 
 	if err := client.Run(ctx, func(ctx context.Context) error {
 		status, err := client.Auth().Status(ctx)
@@ -30,12 +43,17 @@ func (c Checker) CheckAuth(ctx context.Context) (bool, error) {
 			return errors.Wrap(err, "failed to get auth status for check auth")
 		}
 
-		authorized = status.Authorized
+		if !status.Authorized {
+			return noAuthorizedErr
+		}
 
 		return nil
 	}); err != nil {
+		if errors.Is(err, noAuthorizedErr) {
+			return false, nil
+		}
 		return false, errors.Wrap(err, "failed to start client for check auth")
 	}
 
-	return authorized, nil
+	return true, nil
 }

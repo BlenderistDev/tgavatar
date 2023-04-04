@@ -17,15 +17,18 @@ import (
 	"tgavatar/internal/web"
 )
 
+// storagePath path to store telegram session json file
+const storagePath = "storage/session"
+
 func main() {
 	ctx := context.Background()
 
 	logger := log.NewLogger(logrus.New())
 
-	authChecker := auth.Checker{}
+	authChecker := auth.NewChecker(storagePath)
 	successAuthChan := make(chan struct{})
 
-	authService := auth.NewAuth(ctx, logger, successAuthChan)
+	authService := auth.NewAuth(ctx, logger, storagePath, successAuthChan)
 
 	go func() {
 		err := web.LaunchAuthServer(authChecker, authService, logger)
@@ -48,7 +51,7 @@ func main() {
 	imgChan := make(chan []byte)
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: "storage/session"},
+		SessionStorage: &session.FileStorage{Path: storagePath},
 	})
 	if err != nil {
 		panic(errors.Wrap(err, "failed to create avatar update client"))
