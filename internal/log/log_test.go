@@ -11,7 +11,7 @@ const logMessage = "message"
 
 func TestLogger_Info(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	log := mock_log.NewMocklog(ctrl)
+	log := mock_log.NewMockinnerLog(ctrl)
 	log.EXPECT().Infoln(logMessage)
 
 	l := NewLogger(log)
@@ -20,7 +20,7 @@ func TestLogger_Info(t *testing.T) {
 
 func TestLogger_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	log := mock_log.NewMocklog(ctrl)
+	log := mock_log.NewMockinnerLog(ctrl)
 	log.EXPECT().Errorln(logMessage)
 
 	l := NewLogger(log)

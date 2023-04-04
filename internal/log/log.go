@@ -1,30 +1,35 @@
 package log
 
-type log interface {
+type innerLog interface {
 	Errorln(args ...interface{})
 	Infoln(args ...interface{})
 }
 
 //go:generate mockgen -source=log.go -destination=./mock_log/log.go -package=mock_log
 
-// Logger log wrap for project
-type Logger struct {
-	log log
+type logger struct {
+	log innerLog
+}
+
+// Logger log wrap interface for project
+type Logger interface {
+	Error(args ...interface{})
+	Info(args ...interface{})
 }
 
 // NewLogger logger constructor
-func NewLogger(log log) Logger {
-	return Logger{
+func NewLogger(log innerLog) Logger {
+	return logger{
 		log: log,
 	}
 }
 
-// Info log with info level
-func (l Logger) Info(args ...interface{}) {
+// Info innerLog with info level
+func (l logger) Info(args ...interface{}) {
 	l.log.Infoln(args...)
 }
 
-// Error log with error level
-func (l Logger) Error(args ...interface{}) {
+// Error innerLog with error level
+func (l logger) Error(args ...interface{}) {
 	l.log.Errorln(args...)
 }
