@@ -1,14 +1,19 @@
 package log
 
-import "github.com/sirupsen/logrus"
+type log interface {
+	Errorln(args ...interface{})
+	Infoln(args ...interface{})
+}
+
+//go:generate mockgen -source=log.go -destination=./mock_log/log.go -package=mock_log
 
 // Logger log wrap for project
 type Logger struct {
-	log *logrus.Logger
+	log log
 }
 
 // NewLogger logger constructor
-func NewLogger(log *logrus.Logger) Logger {
+func NewLogger(log log) Logger {
 	return Logger{
 		log: log,
 	}
