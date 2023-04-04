@@ -64,8 +64,12 @@ func (a termAuth) Code(_ context.Context, _ *tg.AuthSentCode) (string, error) {
 	return strings.TrimSpace(code), nil
 }
 
+type Authorizer interface {
+	Auth(phone string, codeChan chan string) error
+}
+
 // Auth struct for telegram authorization
-type Auth struct {
+type authorizer struct {
 	successAuthChan chan struct{}
 	ctx             context.Context
 	log             log
@@ -73,8 +77,8 @@ type Auth struct {
 }
 
 // NewAuth constructor for Auth
-func NewAuth(ctx context.Context, log log, storagePath string, successAuthChan chan struct{}) Auth {
-	return Auth{
+func NewAuth(ctx context.Context, log log, storagePath string, successAuthChan chan struct{}) Authorizer {
+	return authorizer{
 		successAuthChan: successAuthChan,
 		ctx:             ctx,
 		log:             log,
@@ -83,7 +87,7 @@ func NewAuth(ctx context.Context, log log, storagePath string, successAuthChan c
 }
 
 // Auth init telegram authorization
-func (a Auth) Auth(phone string, codeChan chan string) error {
+func (a authorizer) Auth(phone string, codeChan chan string) error {
 	flow := auth.NewFlow(
 		termAuth{phone: strings.Clone(phone), dataChan: codeChan},
 		auth.SendCodeOptions{},

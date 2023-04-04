@@ -28,10 +28,10 @@ func main() {
 	authChecker := auth.NewChecker(storagePath)
 	successAuthChan := make(chan struct{})
 
-	authService := auth.NewAuth(ctx, logger, storagePath, successAuthChan)
+	authorizer := auth.NewAuth(ctx, logger, storagePath, successAuthChan)
 
 	go func() {
-		err := web.LaunchAuthServer(authChecker, authService, logger)
+		err := web.LaunchAuthServer(authChecker, authorizer, logger)
 		if err != nil {
 			panic(errors.Wrap(err, "failed launch auth server"))
 		}

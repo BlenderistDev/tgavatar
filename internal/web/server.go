@@ -17,12 +17,12 @@ type log interface {
 type Handler struct {
 	codeChan    chan string
 	authChecker auth.Checker
-	auth        auth.Auth
+	auth        auth.Authorizer
 	log         log
 }
 
 // LaunchAuthServer start web server for telegram auth
-func LaunchAuthServer(authChecker auth.Checker, auth auth.Auth, log log) error {
+func LaunchAuthServer(authChecker auth.Checker, auth auth.Authorizer, log log) error {
 	app := fiber.New()
 
 	codeChan := make(chan string)
