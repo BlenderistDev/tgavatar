@@ -24,12 +24,12 @@ func NewLogger(log innerLog) Logger {
 	}
 }
 
-// Info innerLog with info level
+// Info write to log with info level
 func (l logger) Info(args ...interface{}) {
 	l.log.Infoln(args...)
 }
 
-// Error innerLog with error level
+// Error write to log with error level
 func (l logger) Error(args ...interface{}) {
 	l.log.Errorln(args...)
 }
