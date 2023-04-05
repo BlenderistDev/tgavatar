@@ -27,7 +27,7 @@ func main() {
 	authorizer := auth.NewAuth(ctx, logger, telegramFactory, successAuthChan)
 
 	go func() {
-		err := web.LaunchAuthServer(authChecker, authorizer, logger)
+		_, err := web.LaunchAuthServer(authChecker, authorizer, logger)
 		if err != nil {
 			panic(errors.Wrap(err, "failed launch auth server"))
 		}
