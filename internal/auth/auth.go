@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/tg"
@@ -64,6 +63,10 @@ func (a termAuth) Code(_ context.Context, _ *tg.AuthSentCode) (string, error) {
 	return strings.TrimSpace(code), nil
 }
 
+type telegramFactory interface {
+	GetClient() (*telegram.Client, error)
+}
+
 type Authorizer interface {
 	Auth(phone string, codeChan chan string) error
 }
@@ -73,16 +76,16 @@ type authorizer struct {
 	successAuthChan chan struct{}
 	ctx             context.Context
 	log             log
-	storagePath     string
+	telegramFactory telegramFactory
 }
 
 // NewAuth constructor for Auth
-func NewAuth(ctx context.Context, log log, storagePath string, successAuthChan chan struct{}) Authorizer {
+func NewAuth(ctx context.Context, log log, telegramFactory telegramFactory, successAuthChan chan struct{}) Authorizer {
 	return authorizer{
 		successAuthChan: successAuthChan,
 		ctx:             ctx,
 		log:             log,
-		storagePath:     storagePath,
+		telegramFactory: telegramFactory,
 	}
 }
 
@@ -93,10 +96,7 @@ func (a authorizer) Auth(phone string, codeChan chan string) error {
 		auth.SendCodeOptions{},
 	)
 
-	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: a.storagePath},
-	})
-
+	client, err := a.telegramFactory.GetClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to create telegram client for auth flow init")
 	}

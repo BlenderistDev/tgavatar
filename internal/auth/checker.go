@@ -3,8 +3,6 @@ package auth
 import (
 	"context"
 
-	"github.com/gotd/td/session"
-	"github.com/gotd/td/telegram"
 	"github.com/pkg/errors"
 )
 
@@ -17,22 +15,19 @@ type Checker interface {
 
 // checker struct for authorization checking
 type checker struct {
-	storagePath string
+	telegramFactory telegramFactory
 }
 
 // NewChecker Checker authorization checker constructor
-func NewChecker(storagePath string) Checker {
+func NewChecker(telegramFactory telegramFactory) Checker {
 	return checker{
-		storagePath: storagePath,
+		telegramFactory: telegramFactory,
 	}
 }
 
 // CheckAuth checks telegram authorization for current session
 func (c checker) CheckAuth(ctx context.Context) (bool, error) {
-	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: c.storagePath},
-	})
-
+	client, err := c.telegramFactory.GetClient()
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create client for check auth")
 	}

@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 
-	"github.com/gotd/td/session"
-	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/uploader"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pkg/errors"
@@ -13,22 +11,20 @@ import (
 	"tgavatar/internal/avatar"
 	"tgavatar/internal/cron"
 	"tgavatar/internal/log"
+	telegram2 "tgavatar/internal/telegram"
 	"tgavatar/internal/upload"
 	"tgavatar/internal/web"
 )
 
-// storagePath path to store telegram session json file
-const storagePath = "storage/session"
-
 func main() {
 	ctx := context.Background()
-
 	logger := log.NewLogger(logrus.New())
+	telegramFactory := telegram2.NewFactory()
 
-	authChecker := auth.NewChecker(storagePath)
+	authChecker := auth.NewChecker(telegramFactory)
 	successAuthChan := make(chan struct{})
 
-	authorizer := auth.NewAuth(ctx, logger, storagePath, successAuthChan)
+	authorizer := auth.NewAuth(ctx, logger, telegramFactory, successAuthChan)
 
 	go func() {
 		err := web.LaunchAuthServer(authChecker, authorizer, logger)
@@ -50,9 +46,7 @@ func main() {
 
 	imgChan := make(chan []byte)
 
-	client, err := telegram.ClientFromEnvironment(telegram.Options{
-		SessionStorage: &session.FileStorage{Path: storagePath},
-	})
+	client, err := telegramFactory.GetClient()
 	if err != nil {
 		panic(errors.Wrap(err, "failed to create avatar update client"))
 	}
