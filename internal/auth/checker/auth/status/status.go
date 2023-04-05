@@ -3,17 +3,19 @@ package status
 import (
 	"context"
 
-	tgAuth "github.com/gotd/td/telegram/auth"
+	"github.com/gotd/td/telegram/auth"
 	"github.com/pkg/errors"
 )
 
-type auth interface {
-	Status(ctx context.Context) (*tgAuth.Status, error)
+//go:generate mockgen -source=status.go -mock_names=tgAuth=tgAuth -destination=./mock_status/status.go -package=mock_status
+
+type tgAuth interface {
+	Status(ctx context.Context) (*auth.Status, error)
 }
 
 // CheckerAuthStatus checks auth from telegram *auth.Status
 type CheckerAuthStatus interface {
-	CheckAuth(ctx context.Context, auth auth) (bool, error)
+	CheckAuth(ctx context.Context, auth tgAuth) (bool, error)
 }
 
 type checkerAuthStatus struct {
@@ -25,8 +27,8 @@ func NewCheckerStatusAuth() CheckerAuthStatus {
 }
 
 // CheckAuth checks auth from telegram *auth.Status
-func (s checkerAuthStatus) CheckAuth(ctx context.Context, auth auth) (bool, error) {
-	status, err := auth.Status(ctx)
+func (s checkerAuthStatus) CheckAuth(ctx context.Context, a tgAuth) (bool, error) {
+	status, err := a.Status(ctx)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get auth status for check auth")
 	}
