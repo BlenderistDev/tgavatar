@@ -9,6 +9,7 @@ import (
 // storagePath path to store telegram session json file
 const storagePath = "storage/session"
 
+// Factory telegram client factory
 type Factory interface {
 	GetClient() (*telegram.Client, error)
 }
@@ -16,10 +17,12 @@ type Factory interface {
 type factory struct {
 }
 
+// NewFactory telegram client factory constructor
 func NewFactory() Factory {
 	return factory{}
 }
 
+// GetClient build new telegram client
 func (f factory) GetClient() (*telegram.Client, error) {
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
 		SessionStorage: &session.FileStorage{Path: storagePath},
