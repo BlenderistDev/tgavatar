@@ -5,7 +5,6 @@ import (
 
 	"github.com/gotd/td/telegram"
 	"github.com/pkg/errors"
-	"tgavatar/internal/auth/checker/check"
 )
 
 var noAuthorizedErr = errors.New("user is not authorized")
@@ -22,11 +21,11 @@ type Checker interface {
 // checker struct for authorization checking
 type checker struct {
 	telegramFactory telegramFactory
-	checkerAuth     check.CheckerAuth
+	checkerAuth     CheckerAuth
 }
 
 // NewChecker Checker authorization checker constructor
-func NewChecker(telegramFactory telegramFactory, checkerAuth check.CheckerAuth) Checker {
+func NewChecker(telegramFactory telegramFactory, checkerAuth CheckerAuth) Checker {
 	return checker{
 		telegramFactory: telegramFactory,
 		checkerAuth:     checkerAuth,
@@ -40,18 +39,7 @@ func (c checker) CheckAuth(ctx context.Context) (bool, error) {
 		return false, errors.Wrap(err, "failed to create client for check auth")
 	}
 
-	if err := client.Run(ctx, func(ctx context.Context) error {
-		res, err := c.checkerAuth.CheckAuth(ctx, client)
-		if err != nil {
-			return errors.Wrap(err, "failed to check auth")
-		}
-
-		if !res {
-			return noAuthorizedErr
-		}
-
-		return nil
-	}); err != nil {
+	if err := client.Run(ctx, c.checkerAuth.GetCheckerFunc(client)); err != nil {
 		if errors.Is(err, noAuthorizedErr) {
 			return false, nil
 		}

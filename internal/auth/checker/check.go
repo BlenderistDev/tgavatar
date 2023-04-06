@@ -1,8 +1,9 @@
-package check
+package checker
 
 import (
 	"context"
 
+	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/auth"
 	"github.com/pkg/errors"
 )
@@ -16,6 +17,7 @@ type client interface {
 // CheckerAuth checks auth from telegram *auth.Client
 type CheckerAuth interface {
 	CheckAuth(ctx context.Context, client client) (bool, error)
+	GetCheckerFunc(client *telegram.Client) func(ctx context.Context) error
 }
 
 type checkerAuth struct {
@@ -37,6 +39,21 @@ func (s checkerAuth) CheckAuth(ctx context.Context, client client) (bool, error)
 	}
 
 	return authorized, nil
+}
+
+func (s checkerAuth) GetCheckerFunc(client *telegram.Client) func(ctx context.Context) error {
+	return func(ctx context.Context) error {
+		res, err := s.CheckAuth(ctx, client)
+		if err != nil {
+			return errors.Wrap(err, "failed to check auth")
+		}
+
+		if !res {
+			return noAuthorizedErr
+		}
+
+		return nil
+	}
 }
 
 type TgAuthInterface interface {

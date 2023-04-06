@@ -7,10 +7,10 @@ package mock_check
 import (
 	context "context"
 	reflect "reflect"
-	check "tgavatar/internal/auth/checker/check"
 
 	gomock "github.com/golang/mock/gomock"
 	auth "github.com/gotd/td/telegram/auth"
+	check "tgavatar/internal/auth/checker"
 )
 
 // client is a mock of client interface.
