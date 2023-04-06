@@ -1,4 +1,4 @@
-package auth
+package check
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate mockgen -source=status.go -mock_names=client=client -destination=./mock_status/status.go -package=mock_status
+//go:generate mockgen -source=check.go -mock_names=client=client -destination=./mock_check/check.go -package=mock_check
 
 type client interface {
 	Auth() *auth.Client

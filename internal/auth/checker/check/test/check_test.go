@@ -9,8 +9,8 @@ import (
 	auth2 "github.com/gotd/td/telegram/auth"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	auth3 "tgavatar/internal/auth/checker/auth"
-	"tgavatar/internal/auth/checker/auth/mock_status"
+	"tgavatar/internal/auth/checker/check"
+	"tgavatar/internal/auth/checker/check/mock_check"
 )
 
 func TestCheckerAuthStatus_CheckAuth(t *testing.T) {
@@ -51,10 +51,10 @@ func TestCheckerAuthStatus_CheckAuth(t *testing.T) {
 	for _, test := range tests {
 		ctx := context.Background()
 
-		auth := mock_status.NewMockTgAuthInterface(ctrl)
+		auth := mock_check.NewMockTgAuthInterface(ctrl)
 		auth.EXPECT().Status(ctx).Return(test.status, test.err)
 
-		checker := auth3.NewCheckerStatusAuth()
+		checker := check.NewCheckerStatusAuth()
 		authorized, err := checker.CheckAuth(ctx, auth)
 		assert.Equal(t, test.expected, authorized)
 		if test.err == nil {
@@ -100,11 +100,11 @@ func TestCheckerAuth_CheckAuth(t *testing.T) {
 		ctx := context.Background()
 		tgAuth := &auth2.Client{}
 
-		checkerAuthStatus := mock_status.NewMockCheckerAuthStatusInterface(ctrl)
+		checkerAuthStatus := mock_check.NewMockCheckerAuthStatusInterface(ctrl)
 		checkerAuthStatus.EXPECT().CheckAuth(ctx, tgAuth).Return(test.authorized, test.err)
 
-		checkerAuth := auth3.NewCheckerAuth(checkerAuthStatus)
-		client := mock_status.Newclient(ctrl)
+		checkerAuth := check.NewCheckerAuth(checkerAuthStatus)
+		client := mock_check.Newclient(ctrl)
 		client.EXPECT().Auth().Return(tgAuth)
 
 		authorized, err := checkerAuth.CheckAuth(ctx, client)

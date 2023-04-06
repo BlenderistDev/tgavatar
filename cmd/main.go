@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"tgavatar/internal/auth"
 	"tgavatar/internal/auth/checker"
-	auth2 "tgavatar/internal/auth/checker/auth"
+	"tgavatar/internal/auth/checker/check"
 	"tgavatar/internal/avatar"
 	"tgavatar/internal/cron"
 	"tgavatar/internal/log"
@@ -23,8 +23,8 @@ func main() {
 	logger := log.NewLogger(logrus.New())
 	telegramFactory := telegram2.NewFactory()
 
-	checkerAuth := auth2.NewCheckerAuth(
-		auth2.NewCheckerStatusAuth(),
+	checkerAuth := check.NewCheckerAuth(
+		check.NewCheckerStatusAuth(),
 	)
 	authChecker := checker.NewChecker(telegramFactory, checkerAuth)
 	successAuthChan := make(chan struct{})
