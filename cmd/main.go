@@ -10,7 +10,6 @@ import (
 	"tgavatar/internal/auth"
 	"tgavatar/internal/auth/checker"
 	auth2 "tgavatar/internal/auth/checker/auth"
-	"tgavatar/internal/auth/checker/auth/status"
 	"tgavatar/internal/avatar"
 	"tgavatar/internal/cron"
 	"tgavatar/internal/log"
@@ -25,7 +24,7 @@ func main() {
 	telegramFactory := telegram2.NewFactory()
 
 	checkerAuth := auth2.NewCheckerAuth(
-		status.NewCheckerStatusAuth(),
+		auth2.NewCheckerStatusAuth(),
 	)
 	authChecker := checker.NewChecker(telegramFactory, checkerAuth)
 	successAuthChan := make(chan struct{})
