@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gotd/td/telegram"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +17,7 @@ func TestFactory_GetClient(t *testing.T) {
 	client, err := factory.GetClient()
 
 	assert.Nil(t, err)
-	assert.IsType(t, &telegram.Client{}, client)
+	assert.IsType(t, &TGClient{}, client)
 }
 
 func TestFactory_GetClient_MissingAppID(t *testing.T) {
