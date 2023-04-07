@@ -27,5 +27,5 @@ docker run -d -p 8081:8081 -v ~/storage:/app/storage --name tgavatar --restart a
 
 ## Authorization
 To launch service you need to auth in telegram. Here is a web service for auth. You need to enter phone and auth code.
-Session is stored in storege/session. You need to make a volume for this folder if you are using docker for launching.
+Session is stored in storege/session. You need to make a volume for storage folder if you are using docker for launching.
 
