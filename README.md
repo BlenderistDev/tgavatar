@@ -22,6 +22,9 @@ TIMEZONE - timezone for avatar generation.
 #### Build
 ```
 docker build -t tgavatar .
+```
+#### Run
+```
 docker run -d -p 8081:8081 -v ~/storage:/app/storage --name tgavatar --restart always tgavatar
 ```
 
