@@ -9,9 +9,12 @@ Service load image for current hour and change it. Every hour telegram avatar up
 git clone https://github.com/BlenderistDev/tgavatar
 ````
 ## Envariment variables
-APP_ID - telegram app id. https://core.telegram.org/api/obtaining_api_id for more information
-APP_HASH - telegram app hash. https://core.telegram.org/api/obtaining_api_id for more information
+APP_ID - telegram app id. https://core.telegram.org/api/obtaining_api_id for more information.
+
+APP_HASH - telegram app hash. https://core.telegram.org/api/obtaining_api_id for more information.
+
 HOST - host for auth web server.
+
 TIMEZONE - timezone for avatar generation.
 
 ## Launch
