@@ -25,7 +25,7 @@ func main() {
 	checkerAuth := checker.NewCheckerAuth(
 		checker.NewCheckerStatusAuth(),
 	)
-	authChecker := checker.NewChecker(telegramFactory, checkerAuth)
+	authChecker := checker.NewChecker(checker.NewTgFactory(telegramFactory), checkerAuth)
 	successAuthChan := make(chan struct{})
 
 	authorizer := auth.NewAuth(ctx, logger, telegramFactory, successAuthChan)

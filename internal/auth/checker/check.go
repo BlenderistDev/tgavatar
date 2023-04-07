@@ -3,21 +3,22 @@ package checker
 import (
 	"context"
 
-	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/auth"
 	"github.com/pkg/errors"
+	"tgavatar/internal/telegram"
 )
 
-//go:generate mockgen -source=check.go -mock_names=client=client -destination=./mock_check/check.go -package=mock_check
+//go:generate mockgen -source=check.go -destination=./mock_check/check.go -package=mock_check
 
-type client interface {
+type Client interface {
 	Auth() *auth.Client
+	Run(ctx context.Context, f func(ctx context.Context) error) (err error)
 }
 
 // CheckerAuth checks auth from telegram *auth.Client
 type CheckerAuth interface {
-	CheckAuth(ctx context.Context, client client) (bool, error)
-	GetCheckerFunc(client *telegram.Client) func(ctx context.Context) error
+	CheckAuth(ctx context.Context, client Client) (bool, error)
+	GetCheckerFunc(client Client) func(ctx context.Context) error
 }
 
 type checkerAuth struct {
@@ -32,7 +33,7 @@ func NewCheckerAuth(checkerAuthStatus CheckerAuthStatusInterface) CheckerAuth {
 }
 
 // CheckAuth checks auth from telegram *auth.Client
-func (s checkerAuth) CheckAuth(ctx context.Context, client client) (bool, error) {
+func (s checkerAuth) CheckAuth(ctx context.Context, client Client) (bool, error) {
 	authorized, err := s.checkerAuthStatus.CheckAuth(ctx, client.Auth())
 	if err != nil {
 		return false, errors.Wrap(err, "failed to check auth from telegram auth")
@@ -41,7 +42,7 @@ func (s checkerAuth) CheckAuth(ctx context.Context, client client) (bool, error)
 	return authorized, nil
 }
 
-func (s checkerAuth) GetCheckerFunc(client *telegram.Client) func(ctx context.Context) error {
+func (s checkerAuth) GetCheckerFunc(client Client) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		res, err := s.CheckAuth(ctx, client)
 		if err != nil {
@@ -49,7 +50,7 @@ func (s checkerAuth) GetCheckerFunc(client *telegram.Client) func(ctx context.Co
 		}
 
 		if !res {
-			return noAuthorizedErr
+			return NoAuthorizedErr
 		}
 
 		return nil
@@ -81,4 +82,62 @@ func (s checkerAuthStatus) CheckAuth(ctx context.Context, a TgAuthInterface) (bo
 	}
 
 	return status.Authorized, nil
+}
+
+var NoAuthorizedErr = errors.New("user is not authorized")
+
+type telegramFactory interface {
+	GetClient() (*telegram.TGClient, error)
+}
+
+type TgFactory struct {
+	f telegramFactory
+}
+
+func (t TgFactory) GetClient() (Client, error) {
+	return t.f.GetClient()
+}
+
+type TgFactoryInterface interface {
+	GetClient() (Client, error)
+}
+
+func NewTgFactory(f telegramFactory) TgFactoryInterface {
+	return TgFactory{f: f}
+}
+
+// Checker authorization checker
+type Checker interface {
+	CheckAuth(ctx context.Context) (bool, error)
+}
+
+// checker struct for authorization checking
+type checker struct {
+	telegramFactory TgFactoryInterface
+	checkerAuth     CheckerAuth
+}
+
+// NewChecker Checker authorization checker constructor
+func NewChecker(telegramFactory TgFactoryInterface, checkerAuth CheckerAuth) Checker {
+	return checker{
+		telegramFactory: telegramFactory,
+		checkerAuth:     checkerAuth,
+	}
+}
+
+// CheckAuth checks telegram authorization for current session
+func (c checker) CheckAuth(ctx context.Context) (bool, error) {
+	client, err := c.telegramFactory.GetClient()
+	if err != nil {
+		return false, errors.Wrap(err, "failed to create TGClient for check auth")
+	}
+
+	if err := client.Run(ctx, c.checkerAuth.GetCheckerFunc(client)); err != nil {
+		if errors.Is(err, NoAuthorizedErr) {
+			return false, nil
+		}
+		return false, errors.Wrap(err, "failed to start TGClient for check auth")
+	}
+
+	return true, nil
 }

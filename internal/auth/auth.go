@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/tg"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh/terminal"
+	telegram2 "tgavatar/internal/telegram"
 )
 
 type log interface {
@@ -64,7 +64,7 @@ func (a termAuth) Code(_ context.Context, _ *tg.AuthSentCode) (string, error) {
 }
 
 type telegramFactory interface {
-	GetClient() (*telegram.Client, error)
+	GetClient() (*telegram2.TGClient, error)
 }
 
 type Authorizer interface {

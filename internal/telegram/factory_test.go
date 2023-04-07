@@ -27,7 +27,7 @@ func TestFactory_GetClient_MissingAppID(t *testing.T) {
 	client, err := factory.GetClient()
 
 	assert.Nil(t, client)
-	assert.Equal(t, "telegram client creating error: APP_ID not set or invalid: strconv.Atoi: parsing \"\": invalid syntax", err.Error())
+	assert.Equal(t, "telegram TGClient creating error: APP_ID not set or invalid: strconv.Atoi: parsing \"\": invalid syntax", err.Error())
 }
 
 func TestFactory_GetClient_MissingAppHash(t *testing.T) {
@@ -39,5 +39,5 @@ func TestFactory_GetClient_MissingAppHash(t *testing.T) {
 	client, err := factory.GetClient()
 
 	assert.Nil(t, client)
-	assert.Equal(t, "telegram client creating error: no APP_HASH provided", err.Error())
+	assert.Equal(t, "telegram TGClient creating error: no APP_HASH provided", err.Error())
 }
