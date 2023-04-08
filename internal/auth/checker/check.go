@@ -18,7 +18,6 @@ type Client interface {
 // CheckerAuth checks auth from telegram *auth.Client
 type CheckerAuth interface {
 	CheckAuth(ctx context.Context, client Client) (bool, error)
-	GetCheckerFunc(client Client) func(ctx context.Context) error
 }
 
 type checkerAuth struct {
@@ -42,9 +41,9 @@ func (s checkerAuth) CheckAuth(ctx context.Context, client Client) (bool, error)
 	return authorized, nil
 }
 
-func (s checkerAuth) GetCheckerFunc(client Client) func(ctx context.Context) error {
+func GetCheckerFunc(client Client, checkerAuth CheckerAuth) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
-		res, err := s.CheckAuth(ctx, client)
+		res, err := checkerAuth.CheckAuth(ctx, client)
 		if err != nil {
 			return errors.Wrap(err, "failed to check auth")
 		}
@@ -132,7 +131,7 @@ func (c checker) CheckAuth(ctx context.Context) (bool, error) {
 		return false, errors.Wrap(err, "failed to create TGClient for check auth")
 	}
 
-	if err := client.Run(ctx, c.checkerAuth.GetCheckerFunc(client)); err != nil {
+	if err := client.Run(ctx, GetCheckerFunc(client, c.checkerAuth)); err != nil {
 		if errors.Is(err, NoAuthorizedErr) {
 			return false, nil
 		}

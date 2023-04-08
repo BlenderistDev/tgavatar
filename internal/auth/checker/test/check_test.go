@@ -3,7 +3,6 @@ package test
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -12,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"tgavatar/internal/auth/checker"
 	"tgavatar/internal/auth/checker/mock_check"
+	"tgavatar/internal/telegram"
 )
 
 func TestCheckerAuthStatus_CheckAuth(t *testing.T) {
@@ -156,17 +156,17 @@ func TestChecker_CheckAuth(t *testing.T) {
 		}
 
 		client := mock_check.NewMockClient(ctrl)
-		client.EXPECT().Run(ctx, gomock.AssignableToTypeOf(checkFunc)).Do(func(_ interface{}, f func(ctx context.Context) error) {
-			if reflect.ValueOf(checkFunc) != reflect.ValueOf(f) {
-				t.Errorf("function mismatch")
-			}
-		}).Return(test.err)
+		client.EXPECT().Run(ctx, gomock.AssignableToTypeOf(checkFunc)).Return(test.err)
+		//.Do(func(_ interface{}, f func(ctx context.Context) error) {
+		//	if reflect.ValueOf(checkFunc) != reflect.ValueOf(f) {
+		//		t.Errorf("function mismatch")
+		//	}
+		//})
 
 		telegramFactory := mock_check.NewMockTgFactoryInterface(ctrl)
 		telegramFactory.EXPECT().GetClient().Return(client, nil)
 
 		checkerAuth := mock_check.NewMockCheckerAuth(ctrl)
-		checkerAuth.EXPECT().GetCheckerFunc(client).Return(checkFunc)
 
 		checker := checker.NewChecker(telegramFactory, checkerAuth)
 
@@ -198,5 +198,71 @@ func TestChecker_CheckAuth_TelegramFactoryError(t *testing.T) {
 	res, err := checker.CheckAuth(ctx)
 	assert.False(t, res)
 	assert.Equal(t, "failed to create TGClient for check auth: some err", err.Error())
+
+}
+
+func TestTgFactory_GetClient(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	tgClient := &telegram.TGClient{}
+	resErr := fmt.Errorf("some err")
+
+	telegramFactory := mock_check.NewMocktelegramFactory(ctrl)
+	telegramFactory.EXPECT().GetClient().Return(tgClient, resErr)
+
+	tgFactory := checker.NewTgFactory(telegramFactory)
+
+	res, err := tgFactory.GetClient()
+	assert.Equal(t, tgClient, res)
+	assert.Equal(t, resErr, err)
+
+}
+
+func TestGetCheckerFunc(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	resErr := fmt.Errorf("some err")
+	tests := []struct {
+		authorized  bool
+		err         error
+		expectedErr error
+	}{
+		{
+			authorized:  true,
+			err:         nil,
+			expectedErr: nil,
+		},
+		{
+			authorized:  false,
+			err:         nil,
+			expectedErr: checker.NoAuthorizedErr,
+		},
+		{
+			authorized:  false,
+			err:         resErr,
+			expectedErr: errors.Wrap(resErr, "failed to check auth"),
+		},
+	}
+
+	for _, test := range tests {
+		ctx := context.Background()
+
+		client := mock_check.NewMockClient(ctrl)
+
+		checkerAuth := mock_check.NewMockCheckerAuth(ctrl)
+		checkerAuth.EXPECT().CheckAuth(ctx, client).Return(test.authorized, test.err)
+
+		f := checker.GetCheckerFunc(client, checkerAuth)
+
+		err := f(ctx)
+
+		if test.expectedErr == nil {
+			assert.Nil(t, err)
+		} else {
+			assert.Equal(t, test.expectedErr.Error(), err.Error())
+		}
+	}
 
 }

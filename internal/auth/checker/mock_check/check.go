@@ -103,20 +103,6 @@ func (mr *MockCheckerAuthMockRecorder) CheckAuth(ctx, client interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAuth", reflect.TypeOf((*MockCheckerAuth)(nil).CheckAuth), ctx, client)
 }
 
-// GetCheckerFunc mocks base method.
-func (m *MockCheckerAuth) GetCheckerFunc(client checker.Client) func(context.Context) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCheckerFunc", client)
-	ret0, _ := ret[0].(func(context.Context) error)
-	return ret0
-}
-
-// GetCheckerFunc indicates an expected call of GetCheckerFunc.
-func (mr *MockCheckerAuthMockRecorder) GetCheckerFunc(client interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCheckerFunc", reflect.TypeOf((*MockCheckerAuth)(nil).GetCheckerFunc), client)
-}
-
 // MockTgAuthInterface is a mock of TgAuthInterface interface.
 type MockTgAuthInterface struct {
 	ctrl     *gomock.Controller
