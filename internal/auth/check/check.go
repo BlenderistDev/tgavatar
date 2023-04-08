@@ -8,7 +8,7 @@ import (
 	"tgavatar/internal/telegram"
 )
 
-//go:generate mockgen -source=check.go -destination=./mock_check/check.go -package=mock_check
+//go:generate mockgen -source=check.go -destination=./mock_check.go -package=check
 
 type Client interface {
 	Auth() *auth.Client
@@ -21,19 +21,19 @@ type CheckerAuth interface {
 }
 
 type checkerAuth struct {
-	checkerAuthStatus CheckerAuthStatusInterface
+	statusChecker statusChecker
 }
 
 // NewCheckerAuth constructor for CheckerAuth
-func NewCheckerAuth(checkerAuthStatus CheckerAuthStatusInterface) CheckerAuth {
+func NewCheckerAuth() CheckerAuth {
 	return checkerAuth{
-		checkerAuthStatus: checkerAuthStatus,
+		statusChecker: statusCheck{},
 	}
 }
 
 // CheckAuth checks auth from telegram *auth.Client
 func (s checkerAuth) CheckAuth(ctx context.Context, client Client) (bool, error) {
-	authorized, err := s.checkerAuthStatus.CheckAuth(ctx, client.Auth())
+	authorized, err := s.statusChecker.CheckAuth(ctx, client.Auth())
 	if err != nil {
 		return false, errors.Wrap(err, "failed to check auth from telegram auth")
 	}
@@ -60,21 +60,16 @@ type TgAuthInterface interface {
 	Status(ctx context.Context) (*auth.Status, error)
 }
 
-// CheckerAuthStatusInterface checks auth from telegram *auth.Status
-type CheckerAuthStatusInterface interface {
+// statusChecker checks auth from telegram *auth.Status
+type statusChecker interface {
 	CheckAuth(ctx context.Context, auth TgAuthInterface) (bool, error)
 }
 
-type checkerAuthStatus struct {
-}
-
-// NewCheckerStatusAuth constructor for CheckerAuthStatusInterface
-func NewCheckerStatusAuth() CheckerAuthStatusInterface {
-	return checkerAuthStatus{}
+type statusCheck struct {
 }
 
 // CheckAuth checks auth from telegram *auth.Status
-func (s checkerAuthStatus) CheckAuth(ctx context.Context, a TgAuthInterface) (bool, error) {
+func (s statusCheck) CheckAuth(ctx context.Context, a TgAuthInterface) (bool, error) {
 	status, err := a.Status(ctx)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get auth status for check auth")
