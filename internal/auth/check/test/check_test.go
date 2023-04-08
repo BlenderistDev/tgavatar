@@ -9,8 +9,8 @@ import (
 	auth2 "github.com/gotd/td/telegram/auth"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"tgavatar/internal/auth/checker"
-	"tgavatar/internal/auth/checker/mock_check"
+	"tgavatar/internal/auth/check"
+	"tgavatar/internal/auth/check/mock_check"
 	"tgavatar/internal/telegram"
 )
 
@@ -55,7 +55,7 @@ func TestCheckerAuthStatus_CheckAuth(t *testing.T) {
 		auth := mock_check.NewMockTgAuthInterface(ctrl)
 		auth.EXPECT().Status(ctx).Return(test.status, test.err)
 
-		checker := checker.NewCheckerStatusAuth()
+		checker := check.NewCheckerStatusAuth()
 		authorized, err := checker.CheckAuth(ctx, auth)
 		assert.Equal(t, test.expected, authorized)
 		if test.expectedErr == nil {
@@ -104,7 +104,7 @@ func TestCheckerAuth_CheckAuth(t *testing.T) {
 		checkerAuthStatus := mock_check.NewMockCheckerAuthStatusInterface(ctrl)
 		checkerAuthStatus.EXPECT().CheckAuth(ctx, tgAuth).Return(test.authorized, test.err)
 
-		checkerAuth := checker.NewCheckerAuth(checkerAuthStatus)
+		checkerAuth := check.NewCheckerAuth(checkerAuthStatus)
 		client := mock_check.NewMockClient(ctrl)
 		client.EXPECT().Auth().Return(tgAuth)
 
@@ -137,7 +137,7 @@ func TestChecker_CheckAuth(t *testing.T) {
 		},
 		{
 			expected:    false,
-			err:         checker.NoAuthorizedErr,
+			err:         check.NoAuthorizedErr,
 			expectedErr: nil,
 		},
 		{
@@ -168,7 +168,7 @@ func TestChecker_CheckAuth(t *testing.T) {
 
 		checkerAuth := mock_check.NewMockCheckerAuth(ctrl)
 
-		checker := checker.NewChecker(telegramFactory, checkerAuth)
+		checker := check.NewChecker(telegramFactory, checkerAuth)
 
 		res, err := checker.CheckAuth(ctx)
 		assert.Equal(t, test.expected, res)
@@ -193,7 +193,7 @@ func TestChecker_CheckAuth_TelegramFactoryError(t *testing.T) {
 
 	checkerAuth := mock_check.NewMockCheckerAuth(ctrl)
 
-	checker := checker.NewChecker(telegramFactory, checkerAuth)
+	checker := check.NewChecker(telegramFactory, checkerAuth)
 
 	res, err := checker.CheckAuth(ctx)
 	assert.False(t, res)
@@ -211,7 +211,7 @@ func TestTgFactory_GetClient(t *testing.T) {
 	telegramFactory := mock_check.NewMocktelegramFactory(ctrl)
 	telegramFactory.EXPECT().GetClient().Return(tgClient, resErr)
 
-	tgFactory := checker.NewTgFactory(telegramFactory)
+	tgFactory := check.NewTgFactory(telegramFactory)
 
 	res, err := tgFactory.GetClient()
 	assert.Equal(t, tgClient, res)
@@ -237,7 +237,7 @@ func TestGetCheckerFunc(t *testing.T) {
 		{
 			authorized:  false,
 			err:         nil,
-			expectedErr: checker.NoAuthorizedErr,
+			expectedErr: check.NoAuthorizedErr,
 		},
 		{
 			authorized:  false,
@@ -254,7 +254,7 @@ func TestGetCheckerFunc(t *testing.T) {
 		checkerAuth := mock_check.NewMockCheckerAuth(ctrl)
 		checkerAuth.EXPECT().CheckAuth(ctx, client).Return(test.authorized, test.err)
 
-		f := checker.GetCheckerFunc(client, checkerAuth)
+		f := check.GetCheckerFunc(client, checkerAuth)
 
 		err := f(ctx)
 
@@ -264,5 +264,4 @@ func TestGetCheckerFunc(t *testing.T) {
 			assert.Equal(t, test.expectedErr.Error(), err.Error())
 		}
 	}
-
 }

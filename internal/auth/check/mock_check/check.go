@@ -7,7 +7,7 @@ package mock_check
 import (
 	context "context"
 	reflect "reflect"
-	checker "tgavatar/internal/auth/checker"
+	check "tgavatar/internal/auth/check"
 	telegram "tgavatar/internal/telegram"
 
 	gomock "github.com/golang/mock/gomock"
@@ -89,7 +89,7 @@ func (m *MockCheckerAuth) EXPECT() *MockCheckerAuthMockRecorder {
 }
 
 // CheckAuth mocks base method.
-func (m *MockCheckerAuth) CheckAuth(ctx context.Context, client checker.Client) (bool, error) {
+func (m *MockCheckerAuth) CheckAuth(ctx context.Context, client check.Client) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckAuth", ctx, client)
 	ret0, _ := ret[0].(bool)
@@ -165,7 +165,7 @@ func (m *MockCheckerAuthStatusInterface) EXPECT() *MockCheckerAuthStatusInterfac
 }
 
 // CheckAuth mocks base method.
-func (m *MockCheckerAuthStatusInterface) CheckAuth(ctx context.Context, auth checker.TgAuthInterface) (bool, error) {
+func (m *MockCheckerAuthStatusInterface) CheckAuth(ctx context.Context, auth check.TgAuthInterface) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckAuth", ctx, auth)
 	ret0, _ := ret[0].(bool)
@@ -241,10 +241,10 @@ func (m *MockTgFactoryInterface) EXPECT() *MockTgFactoryInterfaceMockRecorder {
 }
 
 // GetClient mocks base method.
-func (m *MockTgFactoryInterface) GetClient() (checker.Client, error) {
+func (m *MockTgFactoryInterface) GetClient() (check.Client, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetClient")
-	ret0, _ := ret[0].(checker.Client)
+	ret0, _ := ret[0].(check.Client)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
