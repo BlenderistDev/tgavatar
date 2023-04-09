@@ -22,8 +22,7 @@ func main() {
 	logger := log.NewLogger(logrus.New())
 	telegramFactory := telegram2.NewFactory()
 
-	checkerAuth := check.NewCheckerAuth()
-	authChecker := check.NewChecker(check.NewTgFactory(telegramFactory), checkerAuth)
+	authChecker := check.NewChecker(telegramFactory)
 	successAuthChan := make(chan struct{})
 
 	authorizer := auth.NewAuth(ctx, logger, telegramFactory, successAuthChan)

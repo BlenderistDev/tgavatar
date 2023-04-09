@@ -13,31 +13,31 @@ import (
 	auth "github.com/gotd/td/telegram/auth"
 )
 
-// MockClient is a mock of Client interface.
-type MockClient struct {
+// Mockclient is a mock of client interface.
+type Mockclient struct {
 	ctrl     *gomock.Controller
-	recorder *MockClientMockRecorder
+	recorder *MockclientMockRecorder
 }
 
-// MockClientMockRecorder is the mock recorder for MockClient.
-type MockClientMockRecorder struct {
-	mock *MockClient
+// MockclientMockRecorder is the mock recorder for Mockclient.
+type MockclientMockRecorder struct {
+	mock *Mockclient
 }
 
-// NewMockClient creates a new mock instance.
-func NewMockClient(ctrl *gomock.Controller) *MockClient {
-	mock := &MockClient{ctrl: ctrl}
-	mock.recorder = &MockClientMockRecorder{mock}
+// NewMockclient creates a new mock instance.
+func NewMockclient(ctrl *gomock.Controller) *Mockclient {
+	mock := &Mockclient{ctrl: ctrl}
+	mock.recorder = &MockclientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockClient) EXPECT() *MockClientMockRecorder {
+func (m *Mockclient) EXPECT() *MockclientMockRecorder {
 	return m.recorder
 }
 
 // Auth mocks base method.
-func (m *MockClient) Auth() *auth.Client {
+func (m *Mockclient) Auth() *auth.Client {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Auth")
 	ret0, _ := ret[0].(*auth.Client)
@@ -45,13 +45,13 @@ func (m *MockClient) Auth() *auth.Client {
 }
 
 // Auth indicates an expected call of Auth.
-func (mr *MockClientMockRecorder) Auth() *gomock.Call {
+func (mr *MockclientMockRecorder) Auth() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Auth", reflect.TypeOf((*MockClient)(nil).Auth))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Auth", reflect.TypeOf((*Mockclient)(nil).Auth))
 }
 
 // Run mocks base method.
-func (m *MockClient) Run(ctx context.Context, f func(context.Context) error) error {
+func (m *Mockclient) Run(ctx context.Context, f func(context.Context) error) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Run", ctx, f)
 	ret0, _ := ret[0].(error)
@@ -59,36 +59,36 @@ func (m *MockClient) Run(ctx context.Context, f func(context.Context) error) err
 }
 
 // Run indicates an expected call of Run.
-func (mr *MockClientMockRecorder) Run(ctx, f interface{}) *gomock.Call {
+func (mr *MockclientMockRecorder) Run(ctx, f interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockClient)(nil).Run), ctx, f)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*Mockclient)(nil).Run), ctx, f)
 }
 
-// MockCheckerAuth is a mock of CheckerAuth interface.
-type MockCheckerAuth struct {
+// MockauthChecker is a mock of authChecker interface.
+type MockauthChecker struct {
 	ctrl     *gomock.Controller
-	recorder *MockCheckerAuthMockRecorder
+	recorder *MockauthCheckerMockRecorder
 }
 
-// MockCheckerAuthMockRecorder is the mock recorder for MockCheckerAuth.
-type MockCheckerAuthMockRecorder struct {
-	mock *MockCheckerAuth
+// MockauthCheckerMockRecorder is the mock recorder for MockauthChecker.
+type MockauthCheckerMockRecorder struct {
+	mock *MockauthChecker
 }
 
-// NewMockCheckerAuth creates a new mock instance.
-func NewMockCheckerAuth(ctrl *gomock.Controller) *MockCheckerAuth {
-	mock := &MockCheckerAuth{ctrl: ctrl}
-	mock.recorder = &MockCheckerAuthMockRecorder{mock}
+// NewMockauthChecker creates a new mock instance.
+func NewMockauthChecker(ctrl *gomock.Controller) *MockauthChecker {
+	mock := &MockauthChecker{ctrl: ctrl}
+	mock.recorder = &MockauthCheckerMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockCheckerAuth) EXPECT() *MockCheckerAuthMockRecorder {
+func (m *MockauthChecker) EXPECT() *MockauthCheckerMockRecorder {
 	return m.recorder
 }
 
 // CheckAuth mocks base method.
-func (m *MockCheckerAuth) CheckAuth(ctx context.Context, client Client) (bool, error) {
+func (m *MockauthChecker) CheckAuth(ctx context.Context, client client) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckAuth", ctx, client)
 	ret0, _ := ret[0].(bool)
@@ -97,36 +97,36 @@ func (m *MockCheckerAuth) CheckAuth(ctx context.Context, client Client) (bool, e
 }
 
 // CheckAuth indicates an expected call of CheckAuth.
-func (mr *MockCheckerAuthMockRecorder) CheckAuth(ctx, client interface{}) *gomock.Call {
+func (mr *MockauthCheckerMockRecorder) CheckAuth(ctx, client interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAuth", reflect.TypeOf((*MockCheckerAuth)(nil).CheckAuth), ctx, client)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAuth", reflect.TypeOf((*MockauthChecker)(nil).CheckAuth), ctx, client)
 }
 
-// MockTgAuthInterface is a mock of TgAuthInterface interface.
-type MockTgAuthInterface struct {
+// MocktgAuthInterface is a mock of tgAuthInterface interface.
+type MocktgAuthInterface struct {
 	ctrl     *gomock.Controller
-	recorder *MockTgAuthInterfaceMockRecorder
+	recorder *MocktgAuthInterfaceMockRecorder
 }
 
-// MockTgAuthInterfaceMockRecorder is the mock recorder for MockTgAuthInterface.
-type MockTgAuthInterfaceMockRecorder struct {
-	mock *MockTgAuthInterface
+// MocktgAuthInterfaceMockRecorder is the mock recorder for MocktgAuthInterface.
+type MocktgAuthInterfaceMockRecorder struct {
+	mock *MocktgAuthInterface
 }
 
-// NewMockTgAuthInterface creates a new mock instance.
-func NewMockTgAuthInterface(ctrl *gomock.Controller) *MockTgAuthInterface {
-	mock := &MockTgAuthInterface{ctrl: ctrl}
-	mock.recorder = &MockTgAuthInterfaceMockRecorder{mock}
+// NewMocktgAuthInterface creates a new mock instance.
+func NewMocktgAuthInterface(ctrl *gomock.Controller) *MocktgAuthInterface {
+	mock := &MocktgAuthInterface{ctrl: ctrl}
+	mock.recorder = &MocktgAuthInterfaceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockTgAuthInterface) EXPECT() *MockTgAuthInterfaceMockRecorder {
+func (m *MocktgAuthInterface) EXPECT() *MocktgAuthInterfaceMockRecorder {
 	return m.recorder
 }
 
 // Status mocks base method.
-func (m *MockTgAuthInterface) Status(ctx context.Context) (*auth.Status, error) {
+func (m *MocktgAuthInterface) Status(ctx context.Context) (*auth.Status, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Status", ctx)
 	ret0, _ := ret[0].(*auth.Status)
@@ -135,9 +135,9 @@ func (m *MockTgAuthInterface) Status(ctx context.Context) (*auth.Status, error) 
 }
 
 // Status indicates an expected call of Status.
-func (mr *MockTgAuthInterfaceMockRecorder) Status(ctx interface{}) *gomock.Call {
+func (mr *MocktgAuthInterfaceMockRecorder) Status(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Status", reflect.TypeOf((*MockTgAuthInterface)(nil).Status), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Status", reflect.TypeOf((*MocktgAuthInterface)(nil).Status), ctx)
 }
 
 // MockstatusChecker is a mock of statusChecker interface.
@@ -164,7 +164,7 @@ func (m *MockstatusChecker) EXPECT() *MockstatusCheckerMockRecorder {
 }
 
 // CheckAuth mocks base method.
-func (m *MockstatusChecker) CheckAuth(ctx context.Context, auth TgAuthInterface) (bool, error) {
+func (m *MockstatusChecker) CheckAuth(ctx context.Context, auth tgAuthInterface) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckAuth", ctx, auth)
 	ret0, _ := ret[0].(bool)
@@ -216,42 +216,42 @@ func (mr *MocktelegramFactoryMockRecorder) GetClient() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClient", reflect.TypeOf((*MocktelegramFactory)(nil).GetClient))
 }
 
-// MockTgFactoryInterface is a mock of TgFactoryInterface interface.
-type MockTgFactoryInterface struct {
+// MocktgFactoryInterface is a mock of tgFactoryInterface interface.
+type MocktgFactoryInterface struct {
 	ctrl     *gomock.Controller
-	recorder *MockTgFactoryInterfaceMockRecorder
+	recorder *MocktgFactoryInterfaceMockRecorder
 }
 
-// MockTgFactoryInterfaceMockRecorder is the mock recorder for MockTgFactoryInterface.
-type MockTgFactoryInterfaceMockRecorder struct {
-	mock *MockTgFactoryInterface
+// MocktgFactoryInterfaceMockRecorder is the mock recorder for MocktgFactoryInterface.
+type MocktgFactoryInterfaceMockRecorder struct {
+	mock *MocktgFactoryInterface
 }
 
-// NewMockTgFactoryInterface creates a new mock instance.
-func NewMockTgFactoryInterface(ctrl *gomock.Controller) *MockTgFactoryInterface {
-	mock := &MockTgFactoryInterface{ctrl: ctrl}
-	mock.recorder = &MockTgFactoryInterfaceMockRecorder{mock}
+// NewMocktgFactoryInterface creates a new mock instance.
+func NewMocktgFactoryInterface(ctrl *gomock.Controller) *MocktgFactoryInterface {
+	mock := &MocktgFactoryInterface{ctrl: ctrl}
+	mock.recorder = &MocktgFactoryInterfaceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockTgFactoryInterface) EXPECT() *MockTgFactoryInterfaceMockRecorder {
+func (m *MocktgFactoryInterface) EXPECT() *MocktgFactoryInterfaceMockRecorder {
 	return m.recorder
 }
 
 // GetClient mocks base method.
-func (m *MockTgFactoryInterface) GetClient() (Client, error) {
+func (m *MocktgFactoryInterface) GetClient() (client, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetClient")
-	ret0, _ := ret[0].(Client)
+	ret0, _ := ret[0].(client)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetClient indicates an expected call of GetClient.
-func (mr *MockTgFactoryInterfaceMockRecorder) GetClient() *gomock.Call {
+func (mr *MocktgFactoryInterfaceMockRecorder) GetClient() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClient", reflect.TypeOf((*MockTgFactoryInterface)(nil).GetClient))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClient", reflect.TypeOf((*MocktgFactoryInterface)(nil).GetClient))
 }
 
 // MockChecker is a mock of Checker interface.

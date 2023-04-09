@@ -12,7 +12,7 @@ import (
 	"tgavatar/internal/telegram"
 )
 
-func TestCheckerAuthStatus_CheckAuth(t *testing.T) {
+func TestStatusCheck_CheckAuth(t *testing.T) {
 	resErr := fmt.Errorf("some err")
 	tests := []struct {
 		status      *auth2.Status
@@ -50,7 +50,7 @@ func TestCheckerAuthStatus_CheckAuth(t *testing.T) {
 	for _, test := range tests {
 		ctx := context.Background()
 
-		auth := NewMockTgAuthInterface(ctrl)
+		auth := NewMocktgAuthInterface(ctrl)
 		auth.EXPECT().Status(ctx).Return(test.status, test.err)
 
 		checker := statusCheck{}
@@ -64,7 +64,7 @@ func TestCheckerAuthStatus_CheckAuth(t *testing.T) {
 	}
 }
 
-func TestCheckerAuth_CheckAuth(t *testing.T) {
+func TestAuthCheck_CheckAuth(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -102,11 +102,11 @@ func TestCheckerAuth_CheckAuth(t *testing.T) {
 		statusChecker := NewMockstatusChecker(ctrl)
 		statusChecker.EXPECT().CheckAuth(ctx, tgAuth).Return(test.authorized, test.err)
 
-		checkerAuth := checkerAuth{statusChecker: statusChecker}
-		client := NewMockClient(ctrl)
+		authCheck := authCheck{statusChecker: statusChecker}
+		client := NewMockclient(ctrl)
 		client.EXPECT().Auth().Return(tgAuth)
 
-		authorized, err := checkerAuth.CheckAuth(ctx, client)
+		authorized, err := authCheck.CheckAuth(ctx, client)
 
 		assert.Equal(t, test.expected, authorized)
 		if test.expectedErr == nil {
@@ -118,7 +118,7 @@ func TestCheckerAuth_CheckAuth(t *testing.T) {
 
 }
 
-func TestChecker_CheckAuth(t *testing.T) {
+func TestCheck_CheckAuth(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -153,20 +153,18 @@ func TestChecker_CheckAuth(t *testing.T) {
 			return nil
 		}
 
-		client := NewMockClient(ctrl)
+		client := NewMockclient(ctrl)
 		client.EXPECT().Run(ctx, gomock.AssignableToTypeOf(checkFunc)).Return(test.err)
-		//.Do(func(_ interface{}, f func(ctx context.Context) error) {
-		//	if reflect.ValueOf(checkFunc) != reflect.ValueOf(f) {
-		//		t.Errorf("function mismatch")
-		//	}
-		//})
 
-		telegramFactory := NewMockTgFactoryInterface(ctrl)
+		telegramFactory := NewMocktgFactoryInterface(ctrl)
 		telegramFactory.EXPECT().GetClient().Return(client, nil)
 
-		checkerAuth := NewMockCheckerAuth(ctrl)
+		authChecker := NewMockauthChecker(ctrl)
 
-		checker := NewChecker(telegramFactory, checkerAuth)
+		checker := check{
+			telegramFactory: telegramFactory,
+			authChecker:     authChecker,
+		}
 
 		res, err := checker.CheckAuth(ctx)
 		assert.Equal(t, test.expected, res)
@@ -178,7 +176,7 @@ func TestChecker_CheckAuth(t *testing.T) {
 	}
 }
 
-func TestChecker_CheckAuth_TelegramFactoryError(t *testing.T) {
+func TestCheck_CheckAuth_TelegramFactoryError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -186,12 +184,15 @@ func TestChecker_CheckAuth_TelegramFactoryError(t *testing.T) {
 
 	ctx := context.Background()
 
-	telegramFactory := NewMockTgFactoryInterface(ctrl)
+	telegramFactory := NewMocktgFactoryInterface(ctrl)
 	telegramFactory.EXPECT().GetClient().Return(nil, resErr)
 
-	checkerAuth := NewMockCheckerAuth(ctrl)
+	authChecker := NewMockauthChecker(ctrl)
 
-	checker := NewChecker(telegramFactory, checkerAuth)
+	checker := check{
+		telegramFactory: telegramFactory,
+		authChecker:     authChecker,
+	}
 
 	res, err := checker.CheckAuth(ctx)
 	assert.False(t, res)
@@ -209,12 +210,11 @@ func TestTgFactory_GetClient(t *testing.T) {
 	telegramFactory := NewMocktelegramFactory(ctrl)
 	telegramFactory.EXPECT().GetClient().Return(tgClient, resErr)
 
-	tgFactory := NewTgFactory(telegramFactory)
+	tgFactory := tgFactory{factory: telegramFactory}
 
 	res, err := tgFactory.GetClient()
 	assert.Equal(t, tgClient, res)
 	assert.Equal(t, resErr, err)
-
 }
 
 func TestGetCheckerFunc(t *testing.T) {
@@ -247,12 +247,13 @@ func TestGetCheckerFunc(t *testing.T) {
 	for _, test := range tests {
 		ctx := context.Background()
 
-		client := NewMockClient(ctrl)
+		client := NewMockclient(ctrl)
 
-		checkerAuth := NewMockCheckerAuth(ctrl)
-		checkerAuth.EXPECT().CheckAuth(ctx, client).Return(test.authorized, test.err)
+		authChecker := NewMockauthChecker(ctrl)
+		authChecker.EXPECT().CheckAuth(ctx, client).Return(test.authorized, test.err)
 
-		f := GetCheckerFunc(client, checkerAuth)
+		check := check{authChecker: authChecker}
+		f := check.getCheckerFunc(client)
 
 		err := f(ctx)
 
@@ -264,6 +265,11 @@ func TestGetCheckerFunc(t *testing.T) {
 	}
 }
 
-func TestNewCheckerAuth(t *testing.T) {
-	assert.IsType(t, checkerAuth{}, NewCheckerAuth())
+func TestNewChecker(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	telegramFactory := NewMocktelegramFactory(ctrl)
+
+	assert.IsType(t, check{}, NewChecker(telegramFactory))
 }
