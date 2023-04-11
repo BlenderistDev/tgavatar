@@ -92,7 +92,7 @@ func (m *MockauthChecker) EXPECT() *MockauthCheckerMockRecorder {
 // CheckAuth mocks base method.
 func (m *MockauthChecker) CheckAuth(ctx context.Context) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckAuth", ctx)
+	ret := m.ctrl.Call(m, "checkAuth", ctx)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -101,7 +101,7 @@ func (m *MockauthChecker) CheckAuth(ctx context.Context) (bool, error) {
 // CheckAuth indicates an expected call of CheckAuth.
 func (mr *MockauthCheckerMockRecorder) CheckAuth(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAuth", reflect.TypeOf((*MockauthChecker)(nil).CheckAuth), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "checkAuth", reflect.TypeOf((*MockauthChecker)(nil).CheckAuth), ctx)
 }
 
 // Mockauthorizer is a mock of authorizer interface.

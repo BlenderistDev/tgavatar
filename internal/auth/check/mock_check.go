@@ -87,19 +87,19 @@ func (m *MockauthChecker) EXPECT() *MockauthCheckerMockRecorder {
 	return m.recorder
 }
 
-// CheckAuth mocks base method.
-func (m *MockauthChecker) CheckAuth(ctx context.Context, client client) (bool, error) {
+// checkAuth mocks base method.
+func (m *MockauthChecker) checkAuth(ctx context.Context, client client) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckAuth", ctx, client)
+	ret := m.ctrl.Call(m, "checkAuth", ctx, client)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CheckAuth indicates an expected call of CheckAuth.
-func (mr *MockauthCheckerMockRecorder) CheckAuth(ctx, client interface{}) *gomock.Call {
+// checkAuth indicates an expected call of checkAuth.
+func (mr *MockauthCheckerMockRecorder) checkAuth(ctx, client interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAuth", reflect.TypeOf((*MockauthChecker)(nil).CheckAuth), ctx, client)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "checkAuth", reflect.TypeOf((*MockauthChecker)(nil).checkAuth), ctx, client)
 }
 
 // MocktgAuthInterface is a mock of tgAuthInterface interface.
@@ -163,19 +163,19 @@ func (m *MockstatusChecker) EXPECT() *MockstatusCheckerMockRecorder {
 	return m.recorder
 }
 
-// CheckAuth mocks base method.
-func (m *MockstatusChecker) CheckAuth(ctx context.Context, auth tgAuthInterface) (bool, error) {
+// checkAuth mocks base method.
+func (m *MockstatusChecker) checkAuth(ctx context.Context, auth tgAuthInterface) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckAuth", ctx, auth)
+	ret := m.ctrl.Call(m, "checkAuth", ctx, auth)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CheckAuth indicates an expected call of CheckAuth.
-func (mr *MockstatusCheckerMockRecorder) CheckAuth(ctx, auth interface{}) *gomock.Call {
+// checkAuth indicates an expected call of checkAuth.
+func (mr *MockstatusCheckerMockRecorder) checkAuth(ctx, auth interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAuth", reflect.TypeOf((*MockstatusChecker)(nil).CheckAuth), ctx, auth)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "checkAuth", reflect.TypeOf((*MockstatusChecker)(nil).checkAuth), ctx, auth)
 }
 
 // MocktelegramFactory is a mock of telegramFactory interface.

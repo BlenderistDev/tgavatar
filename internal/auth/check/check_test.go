@@ -54,7 +54,7 @@ func TestStatusCheck_CheckAuth(t *testing.T) {
 		auth.EXPECT().Status(ctx).Return(test.status, test.err)
 
 		checker := statusCheck{}
-		authorized, err := checker.CheckAuth(ctx, auth)
+		authorized, err := checker.checkAuth(ctx, auth)
 		assert.Equal(t, test.expected, authorized)
 		if test.expectedErr == nil {
 			assert.Nil(t, err)
@@ -100,13 +100,13 @@ func TestAuthCheck_CheckAuth(t *testing.T) {
 		tgAuth := &auth2.Client{}
 
 		statusChecker := NewMockstatusChecker(ctrl)
-		statusChecker.EXPECT().CheckAuth(ctx, tgAuth).Return(test.authorized, test.err)
+		statusChecker.EXPECT().checkAuth(ctx, tgAuth).Return(test.authorized, test.err)
 
 		authCheck := authCheck{statusChecker: statusChecker}
 		client := NewMockclient(ctrl)
 		client.EXPECT().Auth().Return(tgAuth)
 
-		authorized, err := authCheck.CheckAuth(ctx, client)
+		authorized, err := authCheck.checkAuth(ctx, client)
 
 		assert.Equal(t, test.expected, authorized)
 		if test.expectedErr == nil {
@@ -135,7 +135,7 @@ func TestCheck_CheckAuth(t *testing.T) {
 		},
 		{
 			expected:    false,
-			err:         NoAuthorizedErr,
+			err:         noAuthorizedErr,
 			expectedErr: nil,
 		},
 		{
@@ -235,7 +235,7 @@ func TestGetCheckerFunc(t *testing.T) {
 		{
 			authorized:  false,
 			err:         nil,
-			expectedErr: NoAuthorizedErr,
+			expectedErr: noAuthorizedErr,
 		},
 		{
 			authorized:  false,
@@ -250,7 +250,7 @@ func TestGetCheckerFunc(t *testing.T) {
 		client := NewMockclient(ctrl)
 
 		authChecker := NewMockauthChecker(ctrl)
-		authChecker.EXPECT().CheckAuth(ctx, client).Return(test.authorized, test.err)
+		authChecker.EXPECT().checkAuth(ctx, client).Return(test.authorized, test.err)
 
 		check := check{authChecker: authChecker}
 		f := check.getCheckerFunc(client)
