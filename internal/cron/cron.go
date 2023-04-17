@@ -9,33 +9,68 @@ import (
 	"tgavatar/internal/avatar"
 )
 
+//go:generate mockgen -source=cron.go -destination=./mock_cron/cron.go -package=mock_cron
+
 type log interface {
 	Error(args ...interface{})
 	Info(args ...interface{})
 }
 
-// StartCronAvatarChange starts cronjob for changing avatar
-func StartCronAvatarChange(generator avatar.Generator, log log, imgChan chan []byte) error {
-	c := cron.New()
+type croner interface {
+	AddFunc(spec string, cmd func()) (cron.EntryID, error)
+	Start()
+}
+
+type generatorJob struct {
+	generator avatar.Generator
+	log       log
+	cron      croner
+	imgChan   chan []byte
+	loc       *time.Location
+}
+
+func NewGeneratorJob(g avatar.Generator, l log, i chan []byte, c croner) (*generatorJob, error) {
+	job := generatorJob{
+		generator: g,
+		log:       l,
+		cron:      c,
+		imgChan:   i,
+	}
+
 	loc, err := time.LoadLocation(os.Getenv("TIMEZONE"))
 	if err != nil {
-		return errors.Wrap(err, "failed to load timezone")
+		return nil, errors.Wrap(err, "failed to load timezone")
 	}
-	log.Info("start cron job")
-	_, err = c.AddFunc("0 * * * *", func() {
-		img, err := generator.Generate(time.Now().In(loc).Hour())
-		if err != nil {
-			log.Info(errors.Wrap(err, "avatar generation failed"))
-			return
-		}
-		imgChan <- img
-	})
+
+	job.loc = loc
+
+	err = job.startCronAvatarChange()
+	if err != nil {
+		return nil, err
+	}
+
+	return &job, nil
+}
+
+// startCronAvatarChange starts cronjob for changing avatar
+func (j generatorJob) startCronAvatarChange() error {
+	j.log.Info("start cron job")
+	_, err := j.cron.AddFunc("0 * * * *", j.generate)
 
 	if err != nil {
 		return errors.Wrap(err, "failed to start cron job")
 	}
 
-	c.Start()
+	go j.cron.Start()
 
 	return nil
+}
+
+func (j generatorJob) generate() {
+	img, err := j.generator.Generate(time.Now().In(j.loc).Hour())
+	if err != nil {
+		j.log.Info(errors.Wrap(err, "avatar generation failed"))
+		return
+	}
+	j.imgChan <- img
 }

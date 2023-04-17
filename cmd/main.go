@@ -6,6 +6,7 @@ import (
 	"github.com/gotd/td/telegram/uploader"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pkg/errors"
+	cronLib "github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"tgavatar/internal/auth"
 	"tgavatar/internal/auth/check"
@@ -65,7 +66,7 @@ func main() {
 	}()
 
 	generator := avatar.NewGenerator(logger)
-	err = cron.StartCronAvatarChange(generator, logger, imgChan)
+	_, err = cron.NewGeneratorJob(generator, logger, imgChan, cronLib.New())
 	if err != nil {
 		panic(err)
 	}
