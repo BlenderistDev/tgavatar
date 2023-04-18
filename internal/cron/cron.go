@@ -6,7 +6,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
-	"tgavatar/internal/avatar"
 )
 
 //go:generate mockgen -source=cron.go -destination=./mock_cron/cron.go -package=mock_cron
@@ -21,15 +20,18 @@ type croner interface {
 	Start()
 }
 
+type generator interface {
+	Generate(hour int) ([]byte, error)
+}
 type generatorJob struct {
-	generator avatar.Generator
+	generator generator
 	log       log
 	cron      croner
 	imgChan   chan []byte
 	loc       *time.Location
 }
 
-func NewGeneratorJob(g avatar.Generator, l log, i chan []byte, c croner) (*generatorJob, error) {
+func NewGeneratorJob(g generator, l log, i chan []byte, c croner) (*generatorJob, error) {
 	job := generatorJob{
 		generator: g,
 		log:       l,

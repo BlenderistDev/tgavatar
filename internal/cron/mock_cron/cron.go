@@ -115,3 +115,41 @@ func (mr *MockcronerMockRecorder) Start() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*Mockcroner)(nil).Start))
 }
+
+// Mockgenerator is a mock of generator interface.
+type Mockgenerator struct {
+	ctrl     *gomock.Controller
+	recorder *MockgeneratorMockRecorder
+}
+
+// MockgeneratorMockRecorder is the mock recorder for Mockgenerator.
+type MockgeneratorMockRecorder struct {
+	mock *Mockgenerator
+}
+
+// NewMockgenerator creates a new mock instance.
+func NewMockgenerator(ctrl *gomock.Controller) *Mockgenerator {
+	mock := &Mockgenerator{ctrl: ctrl}
+	mock.recorder = &MockgeneratorMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *Mockgenerator) EXPECT() *MockgeneratorMockRecorder {
+	return m.recorder
+}
+
+// Generate mocks base method.
+func (m *Mockgenerator) Generate(hour int) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Generate", hour)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Generate indicates an expected call of Generate.
+func (mr *MockgeneratorMockRecorder) Generate(hour interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generate", reflect.TypeOf((*Mockgenerator)(nil).Generate), hour)
+}
