@@ -31,6 +31,7 @@ type generatorJob struct {
 	loc       *time.Location
 }
 
+// NewGeneratorJob starts new avatar generator job
 func NewGeneratorJob(g generator, l log, i chan []byte, c croner) (*generatorJob, error) {
 	job := generatorJob{
 		generator: g,
@@ -71,7 +72,7 @@ func (j generatorJob) startCronAvatarChange() error {
 func (j generatorJob) generate() {
 	img, err := j.generator.Generate(time.Now().In(j.loc).Hour())
 	if err != nil {
-		j.log.Info(errors.Wrap(err, "avatar generation failed"))
+		j.log.Error(errors.Wrap(err, "avatar generation failed"))
 		return
 	}
 	j.imgChan <- img
