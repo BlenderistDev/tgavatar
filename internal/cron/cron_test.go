@@ -38,7 +38,7 @@ func TestGeneratorJob_generate(t *testing.T) {
 
 	job.generate()
 
-	time.Sleep(100)
+	time.Sleep(10)
 	assert.Equal(t, res, bytes)
 
 }
