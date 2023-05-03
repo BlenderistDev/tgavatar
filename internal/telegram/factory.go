@@ -13,27 +13,27 @@ import (
 // storagePath path to store telegram session json file
 const storagePath = "storage/session"
 
+// TGClient telegram client wrap struct
 type TGClient struct {
 	client *telegram.Client
 }
 
+// Auth proxy for client.Auth()
 func (c TGClient) Auth() *auth.Client {
 	return c.client.Auth()
 }
 
+// Run proxy for client.Run()
 func (c TGClient) Run(ctx context.Context, f func(ctx context.Context) error) (err error) {
 	return c.client.Run(ctx, f)
 }
 
+// API proxy for client.API()
 func (c TGClient) API() *tg.Client {
 	return c.client.API()
 }
 
-//// Factory telegram TGClient factory
-//type Factory interface {
-//	GetClient() (*TGClient, error)
-//}
-
+// Factory telegram client factory
 type Factory struct {
 }
 
