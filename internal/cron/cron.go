@@ -57,6 +57,7 @@ func NewGeneratorJob(g generator, l log, i chan []byte, c croner) (*generatorJob
 
 // startCronAvatarChange starts cronjob for changing avatar
 func (j generatorJob) startCronAvatarChange() error {
+	go j.generate()
 	j.log.Info("start cron job")
 	_, err := j.cron.AddFunc("0 * * * *", j.generate)
 
